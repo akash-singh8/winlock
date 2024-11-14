@@ -26,6 +26,7 @@
   "author": "cleve",
   "license": "MIT",
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.1"
+    "electron-squirrel-startup": "^1.0.1",
+    "sudo-prompt": "^9.2.1"
   }
 }
