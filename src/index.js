@@ -36,6 +36,8 @@ const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    title: "Winlock",
+    icon: path.join(__dirname, "assets", "logo.png"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
