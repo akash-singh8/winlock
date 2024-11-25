@@ -2,6 +2,7 @@ const { app, BrowserWindow } = require("electron");
 const sudo = require("sudo-prompt");
 const path = require("node:path");
 const fs = require("node:fs");
+const protectionController = require("./controller/protection");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -12,9 +13,10 @@ if (require("electron-squirrel-startup")) {
 const setupFilePath = path.join(app.getPath("userData"), "setup_complete.txt");
 
 function addContextMenuOption() {
-  const command = `
-      reg add "HKCU\\Software\\Classes\\Directory\\shell\\ProtectWithPassword" /ve /d "Protect with Password" /f
-    `;
+  const command = [
+    'reg add "HKCU\\Software\\Classes\\Directory\\shell\\ProtectWithPassword" /ve /d "Protect with Password" /f',
+    `reg add "HKCU\\Software\\Classes\\Directory\\shell\\ProtectWithPassword\\command" /ve /d "\\"${process.execPath}\\" \\"%%V\\""  /f`,
+  ].join(" && ");
 
   sudo.exec(command, { name: "winlock" }, (error, stdout, stderr) => {
     if (error) {
@@ -45,10 +47,10 @@ const createWindow = () => {
 
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, "index.html"));
+  protectionController.initialize(mainWindow);
 };
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
+// This method will be called when Electron has finished initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
   if (!fs.existsSync(setupFilePath)) {
