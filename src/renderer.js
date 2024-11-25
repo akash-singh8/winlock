@@ -8,6 +8,14 @@ function main() {
   window.electronAPI.onEvent("already-protected", (event, fileInfo) => {
     alert("File already protected : " + fileInfo.path);
   });
+
+  window.electronAPI.onEvent("protection-complete", (event, data) => {
+    if (data.success) {
+      alert(data.path + " protected successfully!!");
+    } else {
+      alert("Error while protecting " + data.path);
+    }
+  });
 }
 
 // Function to show password dialog
@@ -56,6 +64,12 @@ function showPasswordDialog(fileInfo) {
       alert("Password must be at least 6 characters long!");
       return;
     }
+
+    // Send the password back to main process
+    window.electronAPI.sendMessage("protect-file", {
+      path: fileInfo.path,
+      password: password,
+    });
 
     dialog.remove();
   });

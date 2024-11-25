@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const sudo = require("sudo-prompt");
 const path = require("node:path");
 const fs = require("node:fs");
@@ -48,6 +48,8 @@ const createWindow = () => {
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, "index.html"));
   protectionController.initialize(mainWindow);
+
+  return mainWindow;
 };
 
 // This method will be called when Electron has finished initialization and is ready to create browser windows.
@@ -57,5 +59,18 @@ app.on("ready", () => {
     addContextMenuOption();
   }
 
-  createWindow();
+  const mainWindow = createWindow();
+
+  // Handle protect-file event from renderer
+  ipcMain.on("protect-file", (event, data) => {
+    const success = protectionController.saveProtectedFileInfo(
+      data.path,
+      data.password
+    );
+
+    mainWindow.webContents.send("protection-complete", {
+      success,
+      path: data.path,
+    });
+  });
 });
