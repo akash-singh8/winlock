@@ -37,6 +37,13 @@ class ProtectionController {
       }
       this.mainWindow.focus();
 
+      if (this.isFileProtected(cleanPath)) {
+        this.mainWindow.webContents.send("already-protected", {
+          path: cleanPath,
+        });
+        return;
+      }
+
       // Send the file path to the renderer process
       this.mainWindow.webContents.send("protect-file-request", {
         path: cleanPath,

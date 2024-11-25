@@ -4,6 +4,10 @@ function main() {
   window.electronAPI.onEvent("protect-file-request", (event, fileInfo) => {
     showPasswordDialog(fileInfo);
   });
+
+  window.electronAPI.onEvent("already-protected", (event, fileInfo) => {
+    alert("File already protected : " + fileInfo.path);
+  });
 }
 
 // Function to show password dialog
