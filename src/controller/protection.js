@@ -1,5 +1,13 @@
+const { app } = require("electron");
+const path = require("node:path");
+const fs = require("node:fs");
+
 class ProtectionController {
   constructor() {
+    this.protectedFilesPath = path.join(
+      app.getPath("userData"),
+      "protected_files.json"
+    );
     this.mainWindow = null;
   }
 
@@ -34,6 +42,48 @@ class ProtectionController {
         path: cleanPath,
         timestamp: new Date().toISOString(),
       });
+    }
+  }
+
+  // Save protected file info
+  saveProtectedFileInfo(filePath, password) {
+    try {
+      let protectedFiles = {};
+
+      if (fs.existsSync(this.protectedFilesPath)) {
+        const data = fs.readFileSync(this.protectedFilesPath, "utf8");
+        protectedFiles = JSON.parse(data);
+      }
+
+      protectedFiles[filePath] = {
+        protectedAt: new Date().toISOString(),
+        password,
+      };
+
+      fs.writeFileSync(
+        this.protectedFilesPath,
+        JSON.stringify(protectedFiles, null, 2)
+      );
+
+      return true;
+    } catch (error) {
+      console.error("Error saving protected file info:", error);
+      return false;
+    }
+  }
+
+  // Check if a file is already protected
+  isFileProtected(filePath) {
+    try {
+      if (fs.existsSync(this.protectedFilesPath)) {
+        const data = fs.readFileSync(this.protectedFilesPath, "utf8");
+        const protectedFiles = JSON.parse(data);
+        return !!protectedFiles[filePath];
+      }
+      return false;
+    } catch (error) {
+      console.error("Error checking protected file status:", error);
+      return false;
     }
   }
 }
