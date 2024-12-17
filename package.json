@@ -22,6 +22,23 @@
     "@electron/fuses": "^1.8.0",
     "electron": "33.2.0"
   },
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "icon": "src/assets/appLogo"
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "winlock",
+            "setupIcon": "src/assets/appLogo.ico",
+            "setupExe": "Winlock.exe"
+          }
+        }
+      ]
+    }
+  },
   "keywords": [],
   "author": "cleve",
   "license": "MIT",
