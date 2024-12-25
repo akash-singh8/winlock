@@ -14,8 +14,10 @@ if (require("electron-squirrel-startup")) {
 const setupFilePath = path.join(app.getPath("userData"), "setup_complete.txt");
 
 function addContextMenuOption() {
+  const iconPath = path.join(__dirname, "assets", "appLogo.ico");
   const command = [
     'reg add "HKCU\\Software\\Classes\\Directory\\shell\\ProtectWithPassword" /ve /d "Protect with Password" /f',
+    `reg add "HKCU\\Software\\Classes\\Directory\\shell\\ProtectWithPassword" /v "Icon" /d ${iconPath} /f`,
     `reg add "HKCU\\Software\\Classes\\Directory\\shell\\ProtectWithPassword\\command" /ve /d "\\"${process.execPath}\\" \\"%%V\\""  /f`,
   ].join(" && ");
 
