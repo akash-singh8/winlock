@@ -2,11 +2,19 @@ document.addEventListener("DOMContentLoaded", main);
 
 function main() {
   window.electronAPI.onEvent("protect-file-request", (event, fileInfo) => {
-    showPasswordDialog(fileInfo);
+    showPasswordDialog(fileInfo, "encrypt");
+  });
+
+  window.electronAPI.onEvent("decrypt-file-request", (event, fileInfo) => {
+    showPasswordDialog(fileInfo, "decrypt");
   });
 
   window.electronAPI.onEvent("already-protected", (event, fileInfo) => {
     alert("File already protected : " + fileInfo.path);
+  });
+
+  window.electronAPI.onEvent("not-protected", (event, fileInfo) => {
+    alert("File not protected : " + fileInfo.path);
   });
 
   window.electronAPI.onEvent("protection-complete", (event, data) => {
@@ -16,25 +24,47 @@ function main() {
       alert("Error while protecting " + data.path);
     }
   });
+
+  window.electronAPI.onEvent("decryption-complete", (event, data) => {
+    if (data.success) {
+      alert(data.path + " decrypted successfully!!");
+    } else {
+      alert("Error while decryption " + data.path);
+    }
+  });
+
+  window.electronAPI.onEvent("update", (event, data) => {
+    console.log("------------------------------");
+    console.log(data);
+    console.log("------------------------------");
+  });
 }
 
 // Function to show password dialog
-function showPasswordDialog(fileInfo) {
+function showPasswordDialog(fileInfo, type) {
   const dialog = document.createElement("div");
   dialog.className = "password-dialog";
   dialog.innerHTML = `
       <div class="dialog-content">
         <h2>Protect Folder</h2>
-        <p>Enter password to protect: ${fileInfo.path}</p>
+        <p>Enter password to ${type === "encrypt" ? "protect" : "unlock"}: ${
+    type == "encrypt" ? fileInfo.path : fileInfo.originalPath
+  }</p>
         <input type="password" id="password" placeholder="Enter password" />
-        <input
-          type="password"
-          id="confirm-password"
-          placeholder="Confirm password"
-        />
+        ${
+          type === "encrypt"
+            ? `<input
+              type="password"
+              id="confirm-password"
+              placeholder="Confirm password"
+            />`
+            : ""
+        }
         <div class="buttons">
           <button id="cancel-btn">Cancel</button>
-          <button id="protect-btn">Protect</button>
+          <button id="protect-btn">${
+            type === "encrypt" ? "Protect" : "Unlock"
+          }</button>
         </div>
       </div>
   `;
@@ -45,7 +75,6 @@ function showPasswordDialog(fileInfo) {
   const cancelBtn = dialog.querySelector("#cancel-btn");
   const protectBtn = dialog.querySelector("#protect-btn");
   const passwordInput = dialog.querySelector("#password");
-  const confirmInput = dialog.querySelector("#confirm-password");
 
   cancelBtn.addEventListener("click", () => {
     dialog.remove();
@@ -53,9 +82,10 @@ function showPasswordDialog(fileInfo) {
 
   protectBtn.addEventListener("click", () => {
     const password = passwordInput.value;
-    const confirmPassword = confirmInput.value;
+    const confirmPassword =
+      type === "encrypt" && dialog.querySelector("#confirm-password").value;
 
-    if (password !== confirmPassword) {
+    if (type === "encrypt" && password !== confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
@@ -66,8 +96,9 @@ function showPasswordDialog(fileInfo) {
     }
 
     // Send the password back to main process
-    window.electronAPI.sendMessage("protect-file", {
+    window.electronAPI.sendMessage(`${type}-file`, {
       path: fileInfo.path,
+      originalPath: fileInfo.originalPath,
       password: password,
     });
 

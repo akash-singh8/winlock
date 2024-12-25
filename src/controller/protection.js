@@ -19,11 +19,14 @@ class ProtectionController {
   // Handle command line arguments when app is launched from context menu
   handleCommandLineArgs() {
     const fileArg = process.argv[1];
+    const mode = process.argv[2];
 
     if (!fileArg || fileArg.includes("--squirrel")) {
       return;
     }
-    this.handleProtectRequest(fileArg);
+
+    if (mode === "decrypt") this.handleDecryptRequest(fileArg, process.argv[3]);
+    else this.handleProtectRequest(fileArg);
   }
 
   // Handle the protect request
@@ -52,6 +55,33 @@ class ProtectionController {
     }
   }
 
+  // Handle the decrypt request
+  handleDecryptRequest(encryptedFilePath, originalFilePath) {
+    const encryptedCleanPath = encryptedFilePath.replace(/['"]/g, "");
+    const originalCleanPath = originalFilePath.replace(/['"]/g, "");
+
+    if (this.mainWindow) {
+      if (this.mainWindow.isMinimized()) {
+        this.mainWindow.restore();
+      }
+      this.mainWindow.focus();
+
+      if (!this.isFileProtected(encryptedCleanPath)) {
+        this.mainWindow.webContents.send("not-protected", {
+          path: encryptedCleanPath,
+        });
+        return;
+      }
+
+      // Send the file path to the renderer process
+      this.mainWindow.webContents.send("decrypt-file-request", {
+        path: encryptedCleanPath,
+        originalPath: originalCleanPath,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }
+
   // Save protected file info
   saveProtectedFileInfo(filePath, password) {
     try {
@@ -62,7 +92,12 @@ class ProtectionController {
         protectedFiles = JSON.parse(data);
       }
 
-      protectedFiles[filePath] = {
+      const encryptedFilePath = path.join(
+        app.getPath("userData"),
+        path.basename(filePath)
+      );
+
+      protectedFiles[encryptedFilePath] = {
         protectedAt: new Date().toISOString(),
         password,
       };
@@ -74,7 +109,35 @@ class ProtectionController {
 
       return true;
     } catch (error) {
-      console.error("Error saving protected file info:", error);
+      this.mainWindow.webContents.send(
+        "update",
+        "Error saving protected file info:" + error
+      );
+      return false;
+    }
+  }
+
+  // Remove protected file info
+  removeProtectedFileInfo(encryptedPath, originalPath) {
+    try {
+      if (!fs.existsSync(this.protectedFilesPath)) return false;
+
+      const data = fs.readFileSync(this.protectedFilesPath, "utf8");
+      const protectedFiles = JSON.parse(data);
+
+      fs.writeFileSync(
+        this.protectedFilesPath,
+        JSON.stringify(protectedFiles, null, 2)
+      );
+      fs.unlinkSync(encryptedPath);
+      fs.unlinkSync(`${originalPath}.lnk`);
+
+      return true;
+    } catch (error) {
+      this.mainWindow.webContents.send(
+        "update",
+        "Error removing protected file info:" + error
+      );
       return false;
     }
   }

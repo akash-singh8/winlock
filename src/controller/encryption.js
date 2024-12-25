@@ -30,7 +30,7 @@ class EncryptionController {
       `${folderPath}.lnk`,
       {
         target: `${process.execPath}`,
-        args: `"${encryptedFolderPath}" "decrypt"`,
+        args: `"${encryptedFolderPath}" "decrypt" "${folderPath}"`,
         icon: iconPath,
         description: `${path.basename(folderPath)} encrypted`,
       },
@@ -106,7 +106,7 @@ class EncryptionController {
 
             // Delete the original folder and zip file
             fs.unlinkSync(zipPath);
-            // fs.rmdirSync(folderPath);
+            fs.rmSync(folderPath, { recursive: true, force: true });
 
             resolve(true);
           })
@@ -115,9 +115,57 @@ class EncryptionController {
     } catch (error) {
       this.mainWindow.webContents.send(
         "update",
-        "::::: error on encryption" + error
+        "Error encrypting file : " + error
       );
-      throw error;
+      return false;
+    }
+  }
+
+  // Decrypt the folder at the given path
+  async decryptFolder(encryptedPath, password, originalPath) {
+    try {
+      // Read the encrypted file
+      const encryptedData = fs.readFileSync(path.join(encryptedPath));
+
+      // Extract salt and IV
+      const salt = encryptedData.slice(0, 32);
+      const iv = encryptedData.slice(32, 32 + this.ivLength);
+
+      const encrypted = encryptedData.slice(32 + this.ivLength);
+
+      // Generate key from password
+      const key = this.generateKey(password, salt);
+
+      // Create decipher
+      const decipher = crypto.createDecipheriv(this.algorithm, key, iv);
+
+      // Decrypt the data
+      const decrypted = Buffer.concat([
+        decipher.update(encrypted),
+        decipher.final(),
+      ]);
+
+      // Define paths for decryption
+      const decryptedZipPath = `${encryptedPath}_decrypted.zip`;
+      const extractPath = originalPath;
+
+      // Write decrypted zip
+      fs.writeFileSync(decryptedZipPath, decrypted);
+
+      // Extract the zip
+      const extract = require("extract-zip");
+      await extract(decryptedZipPath, { dir: extractPath });
+
+      // Clean up temporary files
+      fs.unlinkSync(decryptedZipPath);
+
+      return true;
+    } catch (error) {
+      this.mainWindow.webContents.send(
+        "update",
+        "Error decrypting file : " + error
+      );
+      return false;
     }
   }
 }

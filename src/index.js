@@ -3,6 +3,7 @@ const sudo = require("sudo-prompt");
 const path = require("node:path");
 const fs = require("node:fs");
 const protectionController = require("./controller/protection");
+const encryptionController = require("./controller/encryption");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -48,6 +49,7 @@ const createWindow = () => {
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, "index.html"));
   protectionController.initialize(mainWindow);
+  encryptionController.initialize(mainWindow);
 
   return mainWindow;
 };
@@ -61,16 +63,37 @@ app.on("ready", () => {
 
   const mainWindow = createWindow();
 
-  // Handle protect-file event from renderer
-  ipcMain.on("protect-file", (event, data) => {
-    const success = protectionController.saveProtectedFileInfo(
-      data.path,
-      data.password
+  // Handle encrypt-file event from renderer
+  ipcMain.on("encrypt-file", async (event, data) => {
+    const { path, password } = data;
+    const isEncrypted = await encryptionController.encryptFolder(
+      path,
+      password
     );
+    const isSaved = protectionController.saveProtectedFileInfo(path, password);
 
     mainWindow.webContents.send("protection-complete", {
-      success,
+      success: isEncrypted && isSaved,
       path: data.path,
+    });
+  });
+
+  // Handle decrypt-file event from renderer
+  ipcMain.on("decrypt-file", async (event, data) => {
+    const { path: encryptedPath, password, originalPath } = data;
+    const isDecrypted = await encryptionController.decryptFolder(
+      encryptedPath,
+      password,
+      originalPath
+    );
+    const isRemoved = protectionController.removeProtectedFileInfo(
+      encryptedPath,
+      originalPath
+    );
+
+    mainWindow.webContents.send("decryption-complete", {
+      success: isDecrypted && isRemoved,
+      path: originalPath,
     });
   });
 });
