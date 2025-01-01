@@ -1,6 +1,19 @@
 document.addEventListener("DOMContentLoaded", main);
 
 function main() {
+  document.addEventListener("keydown", (event) => {
+    // Disable zoom in/out shortcuts
+    if (
+      (event.ctrlKey || event.metaKey) &&
+      (event.key === "+" ||
+        event.key === "-" ||
+        event.key === "=" ||
+        event.key === "0")
+    ) {
+      event.preventDefault();
+    }
+  });
+
   document.getElementById("minimize-btn").addEventListener("click", () => {
     window.electronAPI.sendMessage("window-control", "minimize");
   });
