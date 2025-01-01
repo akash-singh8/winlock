@@ -4,10 +4,37 @@
     <meta charset="UTF-8" />
     <title>Winlock</title>
     <link rel="stylesheet" href="index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap"
+      rel="stylesheet"
+    />
     <script src="renderer.js" defer></script>
   </head>
   <body>
-    <h1>💖 Hello World!</h1>
-    <p>Welcome to your Electron application.</p>
+    <div class="titlebar">
+      <img src="./assets/logo.png" alt="winlock" />
+      <h1>Winlock</h1>
+      <div class="window-controls">
+        <img
+          title="Minimize"
+          id="minimize-btn"
+          src="./assets/svgs/minus.svg"
+          alt="minus"
+        />
+        <img
+          title="Close"
+          id="close-btn"
+          src="./assets/svgs/close.svg"
+          alt="cross"
+        />
+      </div>
+    </div>
+
+    <div class="content">
+      <h1>💖 Hello World!</h1>
+      <p>Welcome to your Electron application.</p>
+    </div>
   </body>
 </html>

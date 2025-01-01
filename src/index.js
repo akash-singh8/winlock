@@ -39,9 +39,13 @@ function addContextMenuOption() {
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 400,
+    height: 640,
     title: "Winlock",
+    frame: false,
+    resizable: false,
+    fullscreenable: false,
+    maximizable: false,
     icon: path.join(__dirname, "assets", "logo.png"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
@@ -97,5 +101,12 @@ app.on("ready", () => {
       success: isDecrypted && isRemoved,
       path: originalPath,
     });
+  });
+
+  // Hnalde window controls such as minimize and close
+  ipcMain.on("window-control", (event, action) => {
+    const win = BrowserWindow.getFocusedWindow();
+    if (action === "minimize") win.minimize();
+    if (action === "close") win.close();
   });
 });

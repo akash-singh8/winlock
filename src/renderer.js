@@ -1,6 +1,14 @@
 document.addEventListener("DOMContentLoaded", main);
 
 function main() {
+  document.getElementById("minimize-btn").addEventListener("click", () => {
+    window.electronAPI.sendMessage("window-control", "minimize");
+  });
+
+  document.getElementById("close-btn").addEventListener("click", () => {
+    window.electronAPI.sendMessage("window-control", "close");
+  });
+
   window.electronAPI.onEvent("protect-file-request", (event, fileInfo) => {
     showPasswordDialog(fileInfo, "encrypt");
   });

@@ -1,8 +1,68 @@
+:root {
+  --borderRadius: 12px;
+
+  --background: #f7fafc;
+  --foreground: #0d141c;
+  --lightGray: #e5e8eb;
+  --lightBlue: #4f7396;
+  --darkBlue: #1474d4;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
-  margin: auto;
-  max-width: 38rem;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: "Manrope", serif;
+}
+
+.titlebar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 38px;
+  -webkit-app-region: drag;
+}
+
+.titlebar > img {
+  width: 17px;
+  height: auto;
+  margin-left: 12px;
+}
+
+.titlebar h1 {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.window-controls {
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+  -webkit-app-region: no-drag;
+}
+
+.window-controls img {
+  width: 24px;
+  padding: 4px;
+}
+
+.window-controls img:hover {
+  background-color: var(--lightGray);
+  opacity: 0.7;
+}
+
+.window-controls img:active {
+  background-color: transparent;
+  opacity: 1;
+}
+
+.content {
+  padding: 16px;
 }
 
 .password-dialog {
@@ -35,7 +95,6 @@ body {
 .dialog-content p {
   font-size: 0.9rem;
   font-weight: 500;
-  color: rgb(31, 31, 34);
   margin: 4px 0 1rem;
 }
 
@@ -45,7 +104,7 @@ body {
   margin: 8px 0;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-family: sans-serif;
+  font-family: "Manrope", serif;
 }
 
 .buttons {
@@ -60,7 +119,7 @@ body {
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-family: sans-serif;
+  font-family: "Manrope", serif;
 }
 
 #cancel-btn {
