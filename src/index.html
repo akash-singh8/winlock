@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <title>Winlock</title>
-    <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="styles/index.css" />
+    <link rel="stylesheet" href="styles/popup.css" />
+    <link rel="stylesheet" href="styles/toggle.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -33,8 +35,63 @@
     </div>
 
     <div class="content">
-      <h1>💖 Hello World!</h1>
-      <p>Welcome to your Electron application.</p>
+      <div class="lock-settings">
+        <h2>Lock Settings</h2>
+        <div class="setting-item">
+          <div class="setting-img">
+            <img src="./assets/svgs/lock.svg" alt="lock" />
+          </div>
+          <div class="setting-label">
+            <p>Enable</p>
+            <p>Folder password protection</p>
+          </div>
+          <label class="switch-button" for="switch1">
+            <div class="switch-outer">
+              <input id="switch1" type="checkbox" checked />
+              <div class="button">
+                <span class="button-toggle"></span>
+                <span class="button-indicator"></span>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-img">
+            <img src="./assets/svgs/lockkey.svg" alt="key" />
+          </div>
+          <div class="setting-label">
+            <p>Use Common Password</p>
+            <p>Ensure your password is strong</p>
+          </div>
+          <label class="switch-button" for="switch2">
+            <div class="switch-outer">
+              <input id="switch2" type="checkbox" />
+              <div class="button">
+                <span class="button-toggle"></span>
+                <span class="button-indicator"></span>
+              </div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="history">
+        <h2>Secured Folders</h2>
+        <p>0 folders locked</p>
+        <div class="not-locked">
+          <img src="./assets/folderIcon.ico" alt="Lock Folder" />
+          <p>Your folders will appear here once they are securely locked.</p>
+        </div>
+      </div>
+
+      <div class="upgrade">
+        <p>Free subscription: Lock up to 3 folders</p>
+        <button>
+          <img src="./assets/svgs/uparrow.svg" alt="uparrow" />
+          <p>Upgrade</p>
+        </button>
+      </div>
     </div>
   </body>
 </html>

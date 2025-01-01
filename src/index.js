@@ -40,7 +40,7 @@ const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 400,
-    height: 640,
+    height: 660,
     title: "Winlock",
     frame: false,
     resizable: false,
