@@ -67,7 +67,7 @@ function showPasswordDialog(fileInfo, type) {
   dialog.className = "password-dialog";
   dialog.innerHTML = `
       <div class="dialog-content">
-        <h2>Protect Folder</h2>
+        <h2>${type === "encrypt" ? "Protect" : "Unlock"} Folder</h2>
         <p>Enter password to ${type === "encrypt" ? "protect" : "unlock"}: ${
     type == "encrypt" ? fileInfo.path : fileInfo.originalPath
   }</p>
@@ -82,10 +82,10 @@ function showPasswordDialog(fileInfo, type) {
             : ""
         }
         <div class="buttons">
-          <button id="cancel-btn">Cancel</button>
           <button id="protect-btn">${
-            type === "encrypt" ? "Protect" : "Unlock"
+            type === "encrypt" ? "Secure Folder" : "Unlock"
           }</button>
+          <button id="cancel-btn">Cancel</button>
         </div>
       </div>
   `;
