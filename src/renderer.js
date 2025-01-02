@@ -1,8 +1,14 @@
-document.addEventListener("DOMContentLoaded", main);
+const notyf = new Notyf({
+  duration: 3000,
+  ripple: true,
+  position: {
+    x: "center",
+    y: "top",
+  },
+});
 
-function main() {
+const disableZoomInOut = () => {
   document.addEventListener("keydown", (event) => {
-    // Disable zoom in/out shortcuts
     if (
       (event.ctrlKey || event.metaKey) &&
       (event.key === "+" ||
@@ -13,7 +19,9 @@ function main() {
       event.preventDefault();
     }
   });
+};
 
+const handleWindowControls = () => {
   document.getElementById("minimize-btn").addEventListener("click", () => {
     window.electronAPI.sendMessage("window-control", "minimize");
   });
@@ -21,7 +29,9 @@ function main() {
   document.getElementById("close-btn").addEventListener("click", () => {
     window.electronAPI.sendMessage("window-control", "close");
   });
+};
 
+const handleIncomingEvents = () => {
   window.electronAPI.onEvent("protect-file-request", (event, fileInfo) => {
     showPasswordDialog(fileInfo, "encrypt");
   });
@@ -31,26 +41,26 @@ function main() {
   });
 
   window.electronAPI.onEvent("already-protected", (event, fileInfo) => {
-    alert("File already protected : " + fileInfo.path);
+    notyf.success("File already protected : " + fileInfo.path);
   });
 
   window.electronAPI.onEvent("not-protected", (event, fileInfo) => {
-    alert("File not protected : " + fileInfo.path);
+    notyf.error("File not protected : " + fileInfo.path);
   });
 
   window.electronAPI.onEvent("protection-complete", (event, data) => {
     if (data.success) {
-      alert(data.path + " protected successfully!!");
+      notyf.success(data.path + " protected successfully!!");
     } else {
-      alert("Error while protecting " + data.path);
+      notyf.error("Error while protecting " + data.path);
     }
   });
 
   window.electronAPI.onEvent("decryption-complete", (event, data) => {
     if (data.success) {
-      alert(data.path + " decrypted successfully!!");
+      notyf.success(data.path + " decrypted successfully!!");
     } else {
-      alert("Error while decryption " + data.path);
+      notyf.error("Error while decryption " + data.path);
     }
   });
 
@@ -59,7 +69,11 @@ function main() {
     console.log(data);
     console.log("------------------------------");
   });
-}
+};
+
+disableZoomInOut();
+handleWindowControls();
+handleIncomingEvents();
 
 // Function to show password dialog
 function showPasswordDialog(fileInfo, type) {
@@ -107,12 +121,12 @@ function showPasswordDialog(fileInfo, type) {
       type === "encrypt" && dialog.querySelector("#confirm-password").value;
 
     if (type === "encrypt" && password !== confirmPassword) {
-      alert("Passwords do not match!");
+      notyf.error("Passwords do not match!");
       return;
     }
 
     if (password.length < 6) {
-      alert("Password must be at least 6 characters long!");
+      notyf.error("Password must be at least 6 characters long!");
       return;
     }
 

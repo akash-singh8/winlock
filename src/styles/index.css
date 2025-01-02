@@ -39,6 +39,16 @@ button:active {
   box-shadow: 0 0 0px var(--darkBlue);
 }
 
+.notyf {
+  top: 38px !important;
+  font-family: "Manrope", serif;
+  font-size: 14px;
+}
+
+.notyf__toast--upper {
+  margin-bottom: 6px !important;
+}
+
 .titlebar {
   display: flex;
   justify-content: space-between;
