@@ -138,9 +138,9 @@ function showPasswordDialog(fileInfo, type) {
             ? fileInfo
               ? "Please confirm common password to disable:"
               : "Set a common password:"
-            : "Enter password to " + type === "encrypt"
-            ? "protect: " + fileInfo.path
-            : "unlock: " + fileInfo.originalPath
+            : type === "encrypt"
+            ? `Enter password to protect: ${fileInfo.path}`
+            : `Enter password to unlock: ${fileInfo.originalPath}`
         }</p>
         <input type="password" id="password" placeholder="Enter password" />
         ${
@@ -169,6 +169,12 @@ function showPasswordDialog(fileInfo, type) {
 
   document.body.appendChild(dialog);
 
+  // Add CSS transitions for animations
+  setTimeout(() => {
+    dialog.style.opacity = "1";
+    dialog.style.transform = "scale(1)";
+  }, 100);
+
   // Add event listeners
   const cancelBtn = dialog.querySelector("#cancel-btn");
   const protectBtn = dialog.querySelector("#protect-btn");
@@ -180,7 +186,11 @@ function showPasswordDialog(fileInfo, type) {
       cpSwitch.checked = !cpSwitch.checked;
     }
 
-    dialog.remove();
+    dialog.style.opacity = "0";
+    dialog.style.transform = "scale(0)";
+    setTimeout(() => {
+      dialog.remove();
+    }, 250);
   });
 
   protectBtn.addEventListener("click", () => {
@@ -223,6 +233,10 @@ function showPasswordDialog(fileInfo, type) {
       });
     }
 
-    dialog.remove();
+    dialog.style.opacity = "0";
+    dialog.style.transform = "scale(0)";
+    setTimeout(() => {
+      dialog.remove();
+    }, 250);
   });
 }
