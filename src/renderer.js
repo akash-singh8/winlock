@@ -72,7 +72,13 @@ const handleIncomingEvents = () => {
 
   window.electronAPI.onEvent("context-menu", (event, data) => {
     if (data.success) notyf.success(`Folder Protection ${data.operation}d.`);
-    else notyf.error(`Unable to ${data.operation} Folder Protection!`);
+    else {
+      notyf.error(`Unable to ${data.operation} Folder Protection!`);
+      // undo switch state
+      const enableSwitch = document.getElementById("switch1");
+      enableSwitch.checked = data.operation !== "Enable";
+      localStorage.setItem("isEnabled", `${enableSwitch.checked}`);
+    }
   });
 };
 
