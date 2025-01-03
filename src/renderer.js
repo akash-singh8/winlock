@@ -106,8 +106,13 @@ const handleCommonPassword = () => {
   cpSwitch.checked = currCP;
 
   cpSwitch.addEventListener("click", function () {
+    cpSwitch.disabled = true;
     if (cpSwitch.checked) showPasswordDialog(false, "commonPass");
     else showPasswordDialog(true, "commonPass");
+
+    setTimeout(() => {
+      cpSwitch.disabled = false;
+    }, 500);
   });
 };
 
