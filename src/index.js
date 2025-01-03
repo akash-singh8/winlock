@@ -1,39 +1,16 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
-const sudo = require("sudo-prompt");
 const path = require("node:path");
 const fs = require("node:fs");
 const protectionController = require("./controller/protection");
 const encryptionController = require("./controller/encryption");
-
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require("electron-squirrel-startup")) {
-  app.quit();
-}
+const contextMenuController = require("./controller/contextMenu");
 
 // Location of a flag file to check if context menu option is added
 const setupFilePath = path.join(app.getPath("userData"), "setup_complete.txt");
 
-function addContextMenuOption() {
-  const iconPath = path.join(__dirname, "assets", "appLogo.ico");
-  const command = [
-    'reg add "HKCU\\Software\\Classes\\Directory\\shell\\ProtectWithPassword" /ve /d "Protect with Password" /f',
-    `reg add "HKCU\\Software\\Classes\\Directory\\shell\\ProtectWithPassword" /v "Icon" /d ${iconPath} /f`,
-    `reg add "HKCU\\Software\\Classes\\Directory\\shell\\ProtectWithPassword\\command" /ve /d "\\"${process.execPath}\\" \\"%%V\\""  /f`,
-  ].join(" && ");
-
-  sudo.exec(command, { name: "winlock" }, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error adding context menu: ${error}`);
-      return;
-    }
-    if (stderr) {
-      console.warn(`Warning: ${stderr}`);
-    }
-
-    // Create a setup file to avoid repeating setup on subsequent launches
-    fs.writeFileSync(setupFilePath, "Context menu setup complete.");
-    console.log("Context menu option added successfully! \n stdout :", stdout);
-  });
+// Handle creating/removing shortcuts on Windows when installing/uninstalling.
+if (require("electron-squirrel-startup")) {
+  app.quit();
 }
 
 const createWindow = () => {
@@ -56,6 +33,7 @@ const createWindow = () => {
   mainWindow.loadFile(path.join(__dirname, "index.html"));
   protectionController.initialize(mainWindow);
   encryptionController.initialize(mainWindow);
+  contextMenuController.initialize(mainWindow);
 
   return mainWindow;
 };
@@ -64,6 +42,8 @@ const createWindow = () => {
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
   if (!fs.existsSync(setupFilePath)) {
+    // Create a setup file to avoid repeating setup on subsequent launches
+    fs.writeFileSync(setupFilePath, "Context menu setup complete.");
     addContextMenuOption();
   }
 
@@ -108,5 +88,11 @@ app.on("ready", () => {
     const win = BrowserWindow.getFocusedWindow();
     if (action === "minimize") win.minimize();
     if (action === "close") win.close();
+  });
+
+  // Handle context menu state
+  ipcMain.on("context-menu", (event, state) => {
+    if (state) contextMenuController.addContextMenuOption();
+    else contextMenuController.removeContextMenuOption();
   });
 });

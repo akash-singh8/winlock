@@ -1,5 +1,5 @@
 const notyf = new Notyf({
-  duration: 3000,
+  duration: 2500,
   ripple: true,
   position: {
     x: "center",
@@ -69,8 +69,31 @@ const handleIncomingEvents = () => {
     console.log(data);
     console.log("------------------------------");
   });
+
+  window.electronAPI.onEvent("context-menu", (event, data) => {
+    if (data.success) notyf.success(`Folder Protection ${data.operation}d.`);
+    else notyf.error(`Unable to ${data.operation} Folder Protection!`);
+  });
 };
 
+const handleEnableState = () => {
+  const enableSwitch = document.getElementById("switch1");
+  const prevState = localStorage.getItem("isEnabled");
+
+  if (prevState == null) {
+    localStorage.setItem("isEnabled", "true");
+    return;
+  } else {
+    enableSwitch.checked = prevState === "true";
+  }
+
+  enableSwitch.addEventListener("click", function () {
+    window.electronAPI.sendMessage("context-menu", enableSwitch.checked);
+    localStorage.setItem("isEnabled", `${enableSwitch.checked}`);
+  });
+};
+
+handleEnableState();
 disableZoomInOut();
 handleWindowControls();
 handleIncomingEvents();
