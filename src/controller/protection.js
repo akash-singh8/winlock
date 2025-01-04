@@ -97,7 +97,8 @@ class ProtectionController {
         path.basename(filePath)
       );
 
-      protectedFiles[encryptedFilePath] = {
+      protectedFiles[filePath] = {
+        encryptedFilePath,
         protectedAt: new Date().toISOString(),
         password,
       };
@@ -124,6 +125,8 @@ class ProtectionController {
 
       const data = fs.readFileSync(this.protectedFilesPath, "utf8");
       const protectedFiles = JSON.parse(data);
+
+      delete protectedFiles[originalPath];
 
       fs.writeFileSync(
         this.protectedFilesPath,

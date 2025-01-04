@@ -60,7 +60,7 @@ const handleIncomingEvents = () => {
     if (data.success) {
       notyf.success(data.path + " decrypted successfully!!");
     } else {
-      notyf.error("Error while decryption " + data.path);
+      notyf.error(data.error);
     }
   });
 
@@ -144,8 +144,8 @@ function showPasswordDialog(fileInfo, type) {
               ? "Please confirm common password to disable:"
               : "Set a common password:"
             : type === "encrypt"
-            ? `Enter password to protect: ${fileInfo.path}`
-            : `Enter password to unlock: ${fileInfo.originalPath}`
+            ? fileInfo.path
+            : fileInfo.originalPath
         }</p>
         <input type="password" id="password" placeholder="Enter password" />
         ${

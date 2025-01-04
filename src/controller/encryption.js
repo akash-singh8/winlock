@@ -168,6 +168,19 @@ class EncryptionController {
       return false;
     }
   }
+
+  isCorrectPassword(filePath, password) {
+    const data = fs.readFileSync(this.protectedFilesPath, "utf8");
+    const protectedFiles = JSON.parse(data);
+
+    this.mainWindow.webContents.send("update", {
+      msg: "Matching password!",
+      protectedFiles,
+      password,
+    });
+
+    return password === protectedFiles[filePath]["password"];
+  }
 }
 
 module.exports = new EncryptionController();

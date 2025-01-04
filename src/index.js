@@ -67,18 +67,29 @@ app.on("ready", () => {
   // Handle decrypt-file event from renderer
   ipcMain.on("decrypt-file", async (event, data) => {
     const { path: encryptedPath, password, originalPath } = data;
-    const isDecrypted = await encryptionController.decryptFolder(
-      encryptedPath,
-      password,
-      originalPath
+    const isCorrectPassword = encryptionController.isCorrectPassword(
+      originalPath,
+      password
     );
-    const isRemoved = protectionController.removeProtectedFileInfo(
-      encryptedPath,
-      originalPath
-    );
+    const isDecrypted =
+      isCorrectPassword &&
+      (await encryptionController.decryptFolder(
+        encryptedPath,
+        password,
+        originalPath
+      ));
+    const isRemoved =
+      isCorrectPassword &&
+      isDecrypted &&
+      protectionController.removeProtectedFileInfo(encryptedPath, originalPath);
 
     mainWindow.webContents.send("decryption-complete", {
-      success: isDecrypted && isRemoved,
+      success: isDecrypted && isRemoved && isCorrectPassword,
+      error: !isCorrectPassword
+        ? "Incorrect Password!"
+        : !isDecrypted
+        ? "Unable to decrypt the folder!"
+        : "Unable to remove locked folder link!",
       path: originalPath,
     });
   });
