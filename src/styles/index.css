@@ -162,7 +162,7 @@ button:active {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.7rem;
+  gap: 0.3rem;
   padding: 1rem;
   margin: auto;
   height: 60%;
@@ -170,6 +170,7 @@ button:active {
 }
 
 .not-locked img {
+  margin-top: -0.4rem;
   width: 80px;
 }
 
