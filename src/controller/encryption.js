@@ -23,14 +23,14 @@ class EncryptionController {
     this.mainWindow = mainWindow;
   }
 
-  createShortcut(folderPath, encryptedFolderPath) {
+  createShortcut(folderPath) {
     const iconPath = path.join(__dirname, "../", "assets", "folderIcon.ico");
 
     ws.create(
       `${folderPath}.lnk`,
       {
         target: `${process.execPath}`,
-        args: `"${encryptedFolderPath}" "decrypt" "${folderPath}"`,
+        args: `"${folderPath}" "decrypt"`,
         icon: iconPath,
         description: `${path.basename(folderPath)} encrypted`,
       },
@@ -102,7 +102,7 @@ class EncryptionController {
           .pipe(cipher)
           .pipe(output)
           .on("finish", () => {
-            this.createShortcut(folderPath, encryptedZipPath);
+            this.createShortcut(folderPath);
 
             // Delete the original folder and zip file
             fs.unlinkSync(zipPath);
@@ -122,10 +122,14 @@ class EncryptionController {
   }
 
   // Decrypt the folder at the given path
-  async decryptFolder(encryptedPath, password, originalPath) {
+  async decryptFolder(folderPath, password) {
     try {
+      const encryptedPath = path.join(
+        app.getPath("userData"),
+        path.basename(folderPath)
+      );
       // Read the encrypted file
-      const encryptedData = fs.readFileSync(path.join(encryptedPath));
+      const encryptedData = fs.readFileSync(encryptedPath);
 
       // Extract salt and IV
       const salt = encryptedData.slice(0, 32);
@@ -147,7 +151,7 @@ class EncryptionController {
 
       // Define paths for decryption
       const decryptedZipPath = `${encryptedPath}_decrypted.zip`;
-      const extractPath = originalPath;
+      const extractPath = folderPath;
 
       // Write decrypted zip
       fs.writeFileSync(decryptedZipPath, decrypted);
@@ -172,12 +176,6 @@ class EncryptionController {
   isCorrectPassword(filePath, password) {
     const data = fs.readFileSync(this.protectedFilesPath, "utf8");
     const protectedFiles = JSON.parse(data);
-
-    this.mainWindow.webContents.send("update", {
-      msg: "Matching password!",
-      protectedFiles,
-      password,
-    });
 
     return password === protectedFiles[filePath]["password"];
   }

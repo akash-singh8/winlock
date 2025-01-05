@@ -145,9 +145,7 @@ function showPasswordDialog(fileInfo, type) {
             ? fileInfo
               ? "Please confirm common password to disable:"
               : "Set a common password:"
-            : type === "encrypt"
-            ? fileInfo.path
-            : fileInfo.originalPath
+            : fileInfo.path
         }</p>
         <input type="password" id="password" placeholder="Enter password" />
         ${
@@ -235,7 +233,6 @@ function showPasswordDialog(fileInfo, type) {
       // Send the password back to main process
       window.electronAPI.sendMessage(`${type}-file`, {
         path: fileInfo.path,
-        originalPath: fileInfo.originalPath,
         password: password,
       });
     }

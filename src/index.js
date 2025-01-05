@@ -44,7 +44,7 @@ app.on("ready", () => {
   if (!fs.existsSync(setupFilePath)) {
     // Create a setup file to avoid repeating setup on subsequent launches
     fs.writeFileSync(setupFilePath, "Context menu setup complete.");
-    addContextMenuOption();
+    contextMenuController.addContextMenuOption();
   }
 
   const mainWindow = createWindow();
@@ -70,22 +70,18 @@ app.on("ready", () => {
 
   // Handle decrypt-file event from renderer
   ipcMain.on("decrypt-file", async (event, data) => {
-    const { path: encryptedPath, password, originalPath } = data;
+    const { path, password } = data;
     const isCorrectPassword = encryptionController.isCorrectPassword(
-      originalPath,
+      path,
       password
     );
     const isDecrypted =
       isCorrectPassword &&
-      (await encryptionController.decryptFolder(
-        encryptedPath,
-        password,
-        originalPath
-      ));
+      (await encryptionController.decryptFolder(path, password));
     const isRemoved =
       isCorrectPassword &&
       isDecrypted &&
-      protectionController.removeProtectedFileInfo(encryptedPath, originalPath);
+      protectionController.removeProtectedFileInfo(path);
 
     mainWindow.webContents.send("decryption-complete", {
       success: isDecrypted && isRemoved && isCorrectPassword,
@@ -94,7 +90,7 @@ app.on("ready", () => {
         : !isDecrypted
         ? "Unable to decrypt the folder!"
         : "Unable to remove locked folder link!",
-      path: originalPath,
+      path,
     });
   });
 

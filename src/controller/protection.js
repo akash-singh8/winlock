@@ -24,7 +24,7 @@ class ProtectionController {
       return;
     }
 
-    if (mode === "decrypt") this.handleDecryptRequest(fileArg, process.argv[3]);
+    if (mode === "decrypt") this.handleDecryptRequest(fileArg);
     else this.handleProtectRequest(fileArg);
   }
 
@@ -50,23 +50,20 @@ class ProtectionController {
   }
 
   // Handle the decrypt request
-  handleDecryptRequest(encryptedFilePath, originalFilePath) {
-    const encryptedCleanPath = encryptedFilePath.replace(/['"]/g, "");
-    const originalCleanPath = originalFilePath.replace(/['"]/g, "");
+  handleDecryptRequest(filePath) {
+    const cleanPath = filePath.replace(/['"]/g, "");
 
     if (this.mainWindow) {
-      if (!this.isFileProtected(encryptedCleanPath)) {
+      if (!this.isFileProtected(cleanPath)) {
         this.mainWindow.webContents.send("not-protected", {
-          path: encryptedCleanPath,
+          path: cleanPath,
         });
         return;
       }
 
       // Send the file path to the renderer process
       this.mainWindow.webContents.send("decrypt-file-request", {
-        path: encryptedCleanPath,
-        originalPath: originalCleanPath,
-        timestamp: new Date().toISOString(),
+        path: cleanPath,
       });
     }
   }
@@ -81,13 +78,7 @@ class ProtectionController {
         protectedFiles = JSON.parse(data);
       }
 
-      const encryptedFilePath = path.join(
-        app.getPath("userData"),
-        path.basename(filePath)
-      );
-
       protectedFiles[filePath] = {
-        encryptedFilePath,
         protectedAt: new Date().toISOString(),
         password,
       };
@@ -108,21 +99,24 @@ class ProtectionController {
   }
 
   // Remove protected file info
-  removeProtectedFileInfo(encryptedPath, originalPath) {
+  removeProtectedFileInfo(filePath) {
     try {
       if (!fs.existsSync(this.protectedFilesPath)) return false;
 
       const data = fs.readFileSync(this.protectedFilesPath, "utf8");
       const protectedFiles = JSON.parse(data);
+      const encryptedPath = path.join(
+        app.getPath("userData"),
+        path.basename(filePath)
+      );
 
-      delete protectedFiles[originalPath];
-
+      delete protectedFiles[filePath];
       fs.writeFileSync(
         this.protectedFilesPath,
         JSON.stringify(protectedFiles, null, 2)
       );
       fs.unlinkSync(encryptedPath);
-      fs.unlinkSync(`${originalPath}.lnk`);
+      fs.unlinkSync(`${filePath}.lnk`);
 
       return true;
     } catch (error) {
