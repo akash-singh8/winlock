@@ -49,6 +49,10 @@ app.on("ready", () => {
 
   const mainWindow = createWindow();
 
+  ipcMain.on("ready", () => {
+    protectionController.handleCommandLineArgs();
+  });
+
   // Handle encrypt-file event from renderer
   ipcMain.on("encrypt-file", async (event, data) => {
     const { path, password } = data;

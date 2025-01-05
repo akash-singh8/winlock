@@ -13,7 +13,6 @@ class ProtectionController {
 
   initialize(mainWindow) {
     this.mainWindow = mainWindow;
-    this.handleCommandLineArgs();
   }
 
   // Handle command line arguments when app is launched from context menu
@@ -35,11 +34,6 @@ class ProtectionController {
     const cleanPath = filePath.replace(/['"]/g, "");
 
     if (this.mainWindow) {
-      if (this.mainWindow.isMinimized()) {
-        this.mainWindow.restore();
-      }
-      this.mainWindow.focus();
-
       if (this.isFileProtected(cleanPath)) {
         this.mainWindow.webContents.send("already-protected", {
           path: cleanPath,
@@ -61,11 +55,6 @@ class ProtectionController {
     const originalCleanPath = originalFilePath.replace(/['"]/g, "");
 
     if (this.mainWindow) {
-      if (this.mainWindow.isMinimized()) {
-        this.mainWindow.restore();
-      }
-      this.mainWindow.focus();
-
       if (!this.isFileProtected(encryptedCleanPath)) {
         this.mainWindow.webContents.send("not-protected", {
           path: encryptedCleanPath,

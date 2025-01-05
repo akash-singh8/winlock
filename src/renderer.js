@@ -80,6 +80,8 @@ const handleIncomingEvents = () => {
       localStorage.setItem("isEnabled", `${enableSwitch.checked}`);
     }
   });
+
+  window.electronAPI.sendMessage("ready", true);
 };
 
 const handleEnableState = () => {
