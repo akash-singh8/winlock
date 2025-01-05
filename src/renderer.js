@@ -81,6 +81,27 @@ const handleIncomingEvents = () => {
     }
   });
 
+  window.electronAPI.onEvent("protected-files", (event, protectedFiles) => {
+    const foldersCount = document.querySelector(".history > p");
+    const lockedFolders = document.querySelector(".locked-folders");
+
+    if (protectedFiles.length > 0) {
+      const noFolderLocked = document.querySelector(".not-locked");
+      noFolderLocked.style.display = "none";
+    }
+    foldersCount.innerHTML = `${protectedFiles.length} folders locked`;
+    protectedFiles.forEach(
+      (file) =>
+        (lockedFolders.innerHTML += `<div class="folder-details" title="${file.filePath}">
+                                      <img src="./assets/folderIcon.ico" alt="Lock Folder" />
+                                      <div>
+                                        <p>${file.name}</p>
+                                        <p>${file.protectedAt}</p>
+                                      </div>
+                                    </div>`)
+    );
+  });
+
   window.electronAPI.sendMessage("ready", true);
 };
 

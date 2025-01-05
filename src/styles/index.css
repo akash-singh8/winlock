@@ -99,7 +99,7 @@ button:active {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  margin-bottom: 2.25rem;
+  margin-bottom: 2rem;
 }
 
 .lock-settings h2,
@@ -145,7 +145,7 @@ button:active {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  height: 318px;
+  height: 322px;
   padding-bottom: 1.5rem;
 }
 
@@ -164,7 +164,7 @@ button:active {
   justify-content: center;
   gap: 0.3rem;
   padding: 1rem;
-  margin: auto;
+  margin: 10% auto 0;
   height: 60%;
   width: 64%;
 }
@@ -180,6 +180,45 @@ button:active {
   line-height: 21px;
   text-align: center;
   color: var(--lightBlue);
+}
+
+.locked-folders {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: auto;
+  padding-right: 0.5rem;
+  margin-right: -0.5rem;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.folder-details {
+  cursor: default;
+  border-radius: var(--borderRadius);
+  border: 1px solid var(--lightGray);
+  padding: 0.75rem 1rem;
+
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.folder-details img {
+  width: auto;
+  height: 40px;
+}
+
+.folder-details p:first-child {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.folder-details p:last-child {
+  color: var(--lightBlue);
+  font-weight: 500;
+  font-size: 13px;
 }
 
 .upgrade {
@@ -202,4 +241,18 @@ button:active {
   border-radius: 20px;
   gap: 0.5rem;
   width: 100%;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0f2f5;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--lightGray);
+  border-radius: 3px;
 }
