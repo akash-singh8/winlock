@@ -1,6 +1,8 @@
 const { app } = require("electron");
 const path = require("node:path");
 const fs = require("node:fs");
+const settings = require("./settings");
+const encryptionController = require("./encryption");
 
 class ProtectionController {
   constructor() {
@@ -29,7 +31,7 @@ class ProtectionController {
   }
 
   // Handle the protect request
-  handleProtectRequest(filePath) {
+  async handleProtectRequest(filePath) {
     // Clean up the file path (remove quotes if present)
     const cleanPath = filePath.replace(/['"]/g, "");
 
@@ -41,11 +43,25 @@ class ProtectionController {
         return;
       }
 
-      // Send the file path to the renderer process
-      this.mainWindow.webContents.send("protect-file-request", {
-        path: cleanPath,
-        timestamp: new Date().toISOString(),
-      });
+      const commonPassword = settings.getCommonPassword();
+      if (commonPassword) {
+        const isEncrypted = await encryptionController.encryptFolder(
+          cleanPath,
+          commonPassword
+        );
+        const isSaved = this.saveProtectedFileInfo(cleanPath, commonPassword);
+
+        this.mainWindow.webContents.send("protection-complete", {
+          success: isEncrypted && isSaved,
+          path: cleanPath,
+        });
+      } else {
+        // Send the file path to the renderer process
+        this.mainWindow.webContents.send("protect-file-request", {
+          path: cleanPath,
+          timestamp: new Date().toISOString(),
+        });
+      }
     }
   }
 
