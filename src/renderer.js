@@ -73,13 +73,14 @@ const handleIncomingEvents = () => {
   window.electronAPI.onEvent("protected-files", (event, protectedFiles) => {
     const foldersCount = document.querySelector(".history > p");
     const lockedFolders = document.querySelector(".locked-folders");
+    const noFolderLocked = document.querySelector(".not-locked");
 
-    if (protectedFiles.length > 0) {
-      const noFolderLocked = document.querySelector(".not-locked");
-      noFolderLocked.style.display = "none";
-    }
+    if (protectedFiles?.length > 0) noFolderLocked.style.display = "none";
+    else noFolderLocked.style.display = "flex";
+
     foldersCount.innerHTML = `${protectedFiles.length} folders locked`;
-    protectedFiles.forEach(
+    lockedFolders.innerHTML = "";
+    protectedFiles?.forEach(
       (file) =>
         (lockedFolders.innerHTML += `<div class="folder-details" title="${file.filePath}">
                                       <img src="./assets/folderIcon.ico" alt="Lock Folder" />

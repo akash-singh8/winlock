@@ -3,6 +3,7 @@ const path = require("node:path");
 const fs = require("node:fs");
 const settings = require("./settings");
 const encryptionController = require("./encryption");
+const sendProtectedFilesList = require("../events/protectedFiles");
 
 class ProtectionController {
   constructor() {
@@ -43,11 +44,15 @@ class ProtectionController {
 
       const commonPassword = settings.getCommonPassword();
       if (commonPassword) {
-        const isEncrypted = await encryptionController.encryptFolder(
-          cleanPath,
-          commonPassword
-        );
         const isSaved = this.saveProtectedFileInfo(cleanPath, commonPassword);
+        const isEncrypted =
+          isSaved &&
+          (await encryptionController.encryptFolder(cleanPath, commonPassword));
+
+        if (isSaved && !isEncrypted)
+          this.removeProtectedFileInfo(cleanPath, true);
+
+        if (isEncrypted && isSaved) sendProtectedFilesList(this.mainWindow);
 
         this.mainWindow.webContents.send("protection-complete", {
           success: isEncrypted && isSaved,
@@ -106,21 +111,24 @@ class ProtectionController {
   }
 
   // Remove protected file info
-  removeProtectedFileInfo(filePath) {
+  removeProtectedFileInfo(filePath, onlyRemoveFilePath = false) {
     try {
       if (!fs.existsSync(this.protectedFilesPath)) return false;
 
       const data = fs.readFileSync(this.protectedFilesPath, "utf8");
       const protectedFiles = JSON.parse(data);
-      const encryptedPath = path.join(
-        app.getPath("userData"),
-        path.basename(filePath)
-      );
 
       delete protectedFiles[filePath];
       fs.writeFileSync(
         this.protectedFilesPath,
         JSON.stringify(protectedFiles, null, 2)
+      );
+
+      if (onlyRemoveFilePath) return true;
+
+      const encryptedPath = path.join(
+        app.getPath("userData"),
+        path.basename(filePath)
       );
       fs.unlinkSync(encryptedPath);
       fs.unlinkSync(`${filePath}.lnk`);

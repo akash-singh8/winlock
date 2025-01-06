@@ -249,10 +249,10 @@ button:active {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f0f2f5;
+  background: var(--lightGray);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--lightGray);
+  background: var(--lightBlue);
   border-radius: 3px;
 }

@@ -1,10 +1,10 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("node:path");
-const fs = require("node:fs");
 const protectionController = require("./controller/protection");
 const encryptionController = require("./controller/encryption");
 const contextMenuController = require("./controller/contextMenu");
 const settings = require("./controller/settings");
+const sendProtectedFilesList = require("./events/protectedFiles");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -55,34 +55,20 @@ app.on("ready", () => {
     mainWindow.webContents.send("enable-state", isProtectionEnabled);
     mainWindow.webContents.send("common-password-state", isCommonPasswordSet);
 
-    // Send the list of protected files
-    const protectedFilesPath = path.join(
-      app.getPath("userData"),
-      "protected_files.json"
-    );
-    if (!fs.existsSync(protectedFilesPath)) return;
-    const protectedFiles = fs.readFileSync(protectedFilesPath, "utf8");
-    const parsedData = JSON.parse(protectedFiles);
-    const filesList = [];
-    Object.keys(parsedData).forEach((filePath) =>
-      filesList.push({
-        filePath,
-        name: path.basename(filePath),
-        protectedAt: new Date(parsedData[filePath]["protectedAt"])
-          .toString()
-          .split(" ")
-          .slice(1, 5)
-          .join(" "),
-      })
-    );
-    mainWindow.webContents.send("protected-files", filesList);
+    sendProtectedFilesList(mainWindow);
   });
 
   // Handle encrypt-file event from renderer
   ipcMain.on("encrypt-file", async (event, data) => {
     const { path: fP, password } = data;
-    const isEncrypted = await encryptionController.encryptFolder(fP, password);
     const isSaved = protectionController.saveProtectedFileInfo(fP, password);
+    const isEncrypted =
+      isSaved && (await encryptionController.encryptFolder(fP, password));
+
+    if (isSaved && !isEncrypted)
+      protectionController.removeProtectedFileInfo(fP, true);
+
+    if (isEncrypted && isSaved) sendProtectedFilesList(mainWindow);
 
     mainWindow.webContents.send("protection-complete", {
       success: isEncrypted && isSaved,
@@ -104,6 +90,9 @@ app.on("ready", () => {
       isCorrectPassword &&
       isDecrypted &&
       protectionController.removeProtectedFileInfo(fP);
+
+    if (isCorrectPassword && isDecrypted && isRemoved)
+      sendProtectedFilesList(mainWindow);
 
     mainWindow.webContents.send("decryption-complete", {
       success: isDecrypted && isRemoved && isCorrectPassword,
