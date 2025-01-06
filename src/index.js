@@ -4,6 +4,7 @@ const fs = require("node:fs");
 const protectionController = require("./controller/protection");
 const encryptionController = require("./controller/encryption");
 const contextMenuController = require("./controller/contextMenu");
+const settings = require("./controller/settings");
 
 // Location of a flag file to check if context menu option is added
 const setupFilePath = path.join(app.getPath("userData"), "setup_complete.txt");
@@ -41,16 +42,19 @@ const createWindow = () => {
 // This method will be called when Electron has finished initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
-  if (!fs.existsSync(setupFilePath)) {
-    // Create a setup file to avoid repeating setup on subsequent launches
-    fs.writeFileSync(setupFilePath, "Context menu setup complete.");
-    contextMenuController.addContextMenuOption();
-  }
-
   const mainWindow = createWindow();
 
   ipcMain.on("ready", () => {
-    protectionController.handleCommandLineArgs();
+    if (!fs.existsSync(setupFilePath)) {
+      fs.writeFileSync(setupFilePath, "Context menu setup complete.");
+      contextMenuController.addContextMenuOption();
+    } else {
+      protectionController.handleCommandLineArgs();
+    }
+
+    // Send the protection state to the client
+    const isProtectionEnabled = settings.isEnabled();
+    mainWindow.webContents.send("enable-state", isProtectionEnabled);
 
     // Send the list of protected files
     const protectedFilesPath = path.join(

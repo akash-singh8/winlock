@@ -107,18 +107,14 @@ const handleIncomingEvents = () => {
 
 const handleEnableState = () => {
   const enableSwitch = document.getElementById("switch1");
-  const prevState = localStorage.getItem("isEnabled");
 
-  if (prevState == null) {
-    localStorage.setItem("isEnabled", "true");
-    return;
-  } else {
-    enableSwitch.checked = prevState === "true";
-  }
+  window.electronAPI.onEvent(
+    "enable-state",
+    (event, state) => (enableSwitch.checked = state)
+  );
 
   enableSwitch.addEventListener("click", function () {
     window.electronAPI.sendMessage("context-menu", enableSwitch.checked);
-    localStorage.setItem("isEnabled", `${enableSwitch.checked}`);
   });
 };
 

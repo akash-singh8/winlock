@@ -1,5 +1,6 @@
 const sudo = require("sudo-prompt");
 const path = require("node:path");
+const settings = require("./settings");
 
 class ContextMenuController {
   constructor() {
@@ -44,6 +45,7 @@ class ContextMenuController {
         error || stderr
       );
     } else {
+      settings.setEnableState(operation === "Enable");
       this.mainWindow.webContents.send("context-menu", {
         success: true,
         operation,
