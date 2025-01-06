@@ -13,11 +13,18 @@ class Settings {
       fs.writeFileSync(
         this.settingsFilePath,
         JSON.stringify({
+          isSetupComplete: false,
           isEnabled: true,
           commonPassword: null,
         })
       );
     }
+  }
+
+  isSetupComplete() {
+    const data = fs.readFileSync(this.settingsFilePath, "utf-8");
+    const settings = JSON.parse(data);
+    return settings.isSetupComplete;
   }
 
   isEnabled() {
@@ -30,6 +37,14 @@ class Settings {
     const data = fs.readFileSync(this.settingsFilePath, "utf-8");
     const settings = JSON.parse(data);
     return settings.commonPassword;
+  }
+
+  setSetupComplete(state) {
+    const data = fs.readFileSync(this.settingsFilePath, "utf-8");
+    const settings = JSON.parse(data);
+
+    settings.isSetupComplete = state;
+    fs.writeFileSync(this.settingsFilePath, JSON.stringify(settings, null, 2));
   }
 
   setEnableState(enable) {

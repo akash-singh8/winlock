@@ -6,9 +6,6 @@ const encryptionController = require("./controller/encryption");
 const contextMenuController = require("./controller/contextMenu");
 const settings = require("./controller/settings");
 
-// Location of a flag file to check if context menu option is added
-const setupFilePath = path.join(app.getPath("userData"), "setup_complete.txt");
-
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
   app.quit();
@@ -45,8 +42,8 @@ app.on("ready", () => {
   const mainWindow = createWindow();
 
   ipcMain.on("ready", () => {
-    if (!fs.existsSync(setupFilePath)) {
-      fs.writeFileSync(setupFilePath, "Context menu setup complete.");
+    if (!settings.isSetupComplete()) {
+      settings.setSetupComplete(true);
       contextMenuController.addContextMenuOption();
     } else {
       protectionController.handleCommandLineArgs();
