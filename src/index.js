@@ -49,9 +49,11 @@ app.on("ready", () => {
       protectionController.handleCommandLineArgs();
     }
 
-    // Send the protection state to the client
+    // Send the protection and common password state to the client
     const isProtectionEnabled = settings.isEnabled();
+    const isCommonPasswordSet = !!settings.getCommonPassword();
     mainWindow.webContents.send("enable-state", isProtectionEnabled);
+    mainWindow.webContents.send("common-password-state", isCommonPasswordSet);
 
     // Send the list of protected files
     const protectedFilesPath = path.join(
@@ -128,5 +130,21 @@ app.on("ready", () => {
   ipcMain.on("context-menu", (event, state) => {
     if (state) contextMenuController.addContextMenuOption();
     else contextMenuController.removeContextMenuOption();
+  });
+
+  // Handle Common Password
+  ipcMain.on("set-common-password", (event, password) => {
+    const isCommonPasswordSet = !!settings.getCommonPassword();
+    if (isCommonPasswordSet) return;
+    settings.setCommonPassword(password);
+  });
+
+  ipcMain.on("match-common-password", (event, password) => {
+    const commonPassword = settings.getCommonPassword();
+    if (password === commonPassword) settings.setCommonPassword("");
+    mainWindow.webContents.send(
+      "match-common-password",
+      password === commonPassword
+    );
   });
 });

@@ -70,17 +70,6 @@ const handleIncomingEvents = () => {
     console.log("------------------------------");
   });
 
-  window.electronAPI.onEvent("context-menu", (event, data) => {
-    if (data.success) notyf.success(`Folder Protection ${data.operation}d.`);
-    else {
-      notyf.error(`Unable to ${data.operation} Folder Protection!`);
-      // undo switch state
-      const enableSwitch = document.getElementById("switch1");
-      enableSwitch.checked = data.operation !== "Enable";
-      localStorage.setItem("isEnabled", `${enableSwitch.checked}`);
-    }
-  });
-
   window.electronAPI.onEvent("protected-files", (event, protectedFiles) => {
     const foldersCount = document.querySelector(".history > p");
     const lockedFolders = document.querySelector(".locked-folders");
@@ -113,6 +102,15 @@ const handleEnableState = () => {
     (event, state) => (enableSwitch.checked = state)
   );
 
+  window.electronAPI.onEvent("context-menu", (event, data) => {
+    if (data.success) notyf.success(`Folder Protection ${data.operation}d.`);
+    else {
+      notyf.error(`Unable to ${data.operation} Folder Protection!`);
+      const enableSwitch = document.getElementById("switch1");
+      enableSwitch.checked = data.operation !== "Enable";
+    }
+  });
+
   enableSwitch.addEventListener("click", function () {
     window.electronAPI.sendMessage("context-menu", enableSwitch.checked);
   });
@@ -120,9 +118,19 @@ const handleEnableState = () => {
 
 const handleCommonPassword = () => {
   const cpSwitch = document.getElementById("switch2");
-  const currCP = localStorage.getItem("commonPassword");
 
-  cpSwitch.checked = currCP;
+  window.electronAPI.onEvent(
+    "common-password-state",
+    (event, state) => (cpSwitch.checked = state)
+  );
+
+  window.electronAPI.onEvent("match-common-password", (event, isCorrect) => {
+    if (isCorrect) notyf.success("Disabled Common Password.");
+    else {
+      cpSwitch.checked = true;
+      notyf.error("Please enter correct common password!");
+    }
+  });
 
   cpSwitch.addEventListener("click", function () {
     cpSwitch.disabled = true;
@@ -238,14 +246,11 @@ function showPasswordDialog(fileInfo, type) {
 
     if (type === "commonPass") {
       if (fileInfo) {
-        const currPass = localStorage.getItem("commonPassword");
-        if (currPass != password)
-          return notyf.error("Please enter correct common password!");
-        localStorage.removeItem("commonPassword");
-      } else localStorage.setItem("commonPassword", password);
-      notyf.success(
-        `Successfully ${fileInfo ? "disabled" : "added a"} Common Password.`
-      );
+        window.electronAPI.sendMessage("match-common-password", password);
+      } else {
+        window.electronAPI.sendMessage("set-common-password", password);
+        notyf.success("Successfully Enabled Common Password.");
+      }
     } else {
       // Send the password back to main process
       window.electronAPI.sendMessage(`${type}-file`, {
