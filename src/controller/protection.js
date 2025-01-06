@@ -37,9 +37,7 @@ class ProtectionController {
 
     if (this.mainWindow) {
       if (this.isFileProtected(cleanPath)) {
-        this.mainWindow.webContents.send("already-protected", {
-          path: cleanPath,
-        });
+        this.mainWindow.webContents.send("already-protected", cleanPath);
         return;
       }
 
@@ -53,14 +51,11 @@ class ProtectionController {
 
         this.mainWindow.webContents.send("protection-complete", {
           success: isEncrypted && isSaved,
-          path: cleanPath,
+          name: path.basename(cleanPath),
         });
       } else {
         // Send the file path to the renderer process
-        this.mainWindow.webContents.send("protect-file-request", {
-          path: cleanPath,
-          timestamp: new Date().toISOString(),
-        });
+        this.mainWindow.webContents.send("protect-file-request", cleanPath);
       }
     }
   }
@@ -71,16 +66,12 @@ class ProtectionController {
 
     if (this.mainWindow) {
       if (!this.isFileProtected(cleanPath)) {
-        this.mainWindow.webContents.send("not-protected", {
-          path: cleanPath,
-        });
+        this.mainWindow.webContents.send("not-protected", cleanPath);
         return;
       }
 
       // Send the file path to the renderer process
-      this.mainWindow.webContents.send("decrypt-file-request", {
-        path: cleanPath,
-      });
+      this.mainWindow.webContents.send("decrypt-file-request", cleanPath);
     }
   }
 

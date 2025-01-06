@@ -32,33 +32,33 @@ const handleWindowControls = () => {
 };
 
 const handleIncomingEvents = () => {
-  window.electronAPI.onEvent("protect-file-request", (event, fileInfo) => {
-    showPasswordDialog(fileInfo, "encrypt");
+  window.electronAPI.onEvent("protect-file-request", (event, filePath) => {
+    showPasswordDialog(filePath, "encrypt");
   });
 
-  window.electronAPI.onEvent("decrypt-file-request", (event, fileInfo) => {
-    showPasswordDialog(fileInfo, "decrypt");
+  window.electronAPI.onEvent("decrypt-file-request", (event, filePath) => {
+    showPasswordDialog(filePath, "decrypt");
   });
 
-  window.electronAPI.onEvent("already-protected", (event, fileInfo) => {
-    notyf.success("File already protected : " + fileInfo.path);
+  window.electronAPI.onEvent("already-protected", (event, filePath) => {
+    notyf.success("File already protected : " + filePath);
   });
 
-  window.electronAPI.onEvent("not-protected", (event, fileInfo) => {
-    notyf.error("File not protected : " + fileInfo.path);
+  window.electronAPI.onEvent("not-protected", (event, filePath) => {
+    notyf.error("File not protected : " + filePath);
   });
 
   window.electronAPI.onEvent("protection-complete", (event, data) => {
     if (data.success) {
-      notyf.success(data.path + " protected successfully!!");
+      notyf.success(`Folder "${data.name}" Locked Successfully.`);
     } else {
-      notyf.error("Error while protecting " + data.path);
+      notyf.error("Error while protecting " + data.name);
     }
   });
 
   window.electronAPI.onEvent("decryption-complete", (event, data) => {
     if (data.success) {
-      notyf.success(data.path + " decrypted successfully!!");
+      notyf.success(`Folder "${data.name}" Unlocked Successfully.`);
     } else {
       notyf.error(data.error);
     }
@@ -150,8 +150,8 @@ handleWindowControls();
 handleIncomingEvents();
 
 // Function to show password dialog
-// Also in case if type === commonPass, then fileInfo indicates if the user wants to enable/disable common password
-function showPasswordDialog(fileInfo, type) {
+// Also in case if type === commonPass, then filePath indicates if the user wants to enable/disable common password
+function showPasswordDialog(filePath, type) {
   const dialog = document.createElement("div");
   dialog.className = "password-dialog";
   dialog.innerHTML = `
@@ -160,21 +160,21 @@ function showPasswordDialog(fileInfo, type) {
           type === "encrypt"
             ? "Protect Folder"
             : type === "commonPass"
-            ? fileInfo
+            ? filePath
               ? "Disable Common Password"
               : "Common Password"
             : "Unlock Folder"
         } </h2>
         <p>${
           type === "commonPass"
-            ? fileInfo
+            ? filePath
               ? "Please confirm common password to disable:"
               : "Set a common password:"
-            : fileInfo.path
+            : filePath
         }</p>
         <input type="password" id="password" placeholder="Enter password" />
         ${
-          type === "decrypt" || fileInfo === true
+          type === "decrypt" || filePath === true
             ? ""
             : `<input
               type="password"
@@ -187,7 +187,7 @@ function showPasswordDialog(fileInfo, type) {
             type === "encrypt"
               ? "Secure Folder"
               : type === "commonPass"
-              ? fileInfo
+              ? filePath
                 ? "Disable"
                 : "Set Password"
               : "Unlock"
@@ -227,12 +227,12 @@ function showPasswordDialog(fileInfo, type) {
     const password = passwordInput.value;
     const confirmPassword =
       type !== "decrypt" &&
-      fileInfo === false &&
+      filePath === false &&
       dialog.querySelector("#confirm-password").value;
 
     if (
       type !== "decrypt" &&
-      fileInfo === false &&
+      filePath === false &&
       password !== confirmPassword
     ) {
       notyf.error("Passwords do not match!");
@@ -245,7 +245,7 @@ function showPasswordDialog(fileInfo, type) {
     }
 
     if (type === "commonPass") {
-      if (fileInfo) {
+      if (filePath) {
         window.electronAPI.sendMessage("match-common-password", password);
       } else {
         window.electronAPI.sendMessage("set-common-password", password);
@@ -254,7 +254,7 @@ function showPasswordDialog(fileInfo, type) {
     } else {
       // Send the password back to main process
       window.electronAPI.sendMessage(`${type}-file`, {
-        path: fileInfo.path,
+        path: filePath,
         password: password,
       });
     }
