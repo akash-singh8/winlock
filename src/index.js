@@ -1,5 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("node:path");
+const fs = require("node:fs");
+
 const protectionController = require("./controller/protection");
 const encryptionController = require("./controller/encryption");
 const contextMenuController = require("./controller/contextMenu");
@@ -8,6 +10,15 @@ const sendProtectedFilesList = require("./events/protectedFiles");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
+  const squirrelEvent = process.argv[1];
+  if (squirrelEvent === "--squirrel-uninstall") {
+    const settingsFilePath = path.join(
+      app.getPath("userData"),
+      "settings.json"
+    );
+    fs.unlinkSync(settingsFilePath);
+    contextMenuController.removeContextMenuOption();
+  }
   app.quit();
 }
 
