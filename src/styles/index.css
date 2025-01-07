@@ -33,7 +33,7 @@ button {
   transition: all 0.3s ease-out;
 }
 button:hover {
-  box-shadow: 0 0 10px var(--darkBlue);
+  box-shadow: 0 0 8px var(--darkBlue);
 }
 button:active {
   box-shadow: 0 0 0px var(--darkBlue);
@@ -145,7 +145,7 @@ button:active {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  height: 322px;
+  height: 324px;
   padding-bottom: 1.5rem;
 }
 
@@ -226,7 +226,7 @@ button:active {
   align-items: center;
   flex-direction: column;
   justify-content: space-between;
-  height: 72px;
+  height: 71px;
 }
 
 .upgrade > p {
@@ -234,13 +234,30 @@ button:active {
   font-size: 14px;
 }
 
+.upgrade div {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  justify-content: space-between;
+}
+
 .upgrade button {
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 20px;
+  padding: 0.6rem 0;
   gap: 0.5rem;
   width: 100%;
+}
+
+.upgrade button:last-child {
+  border-radius: 50%;
+  width: 47px;
+}
+
+.upgrade img:last-child {
+  height: 21px;
 }
 
 ::-webkit-scrollbar {

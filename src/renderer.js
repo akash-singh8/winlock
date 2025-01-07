@@ -144,6 +144,12 @@ const handleCommonPassword = () => {
   });
 };
 
+const handleActivation = () => {
+  const proButton = document.getElementById("activate-pro");
+  proButton.addEventListener("click", () => showActivationDialog());
+};
+
+handleActivation();
 handleCommonPassword();
 handleEnableState();
 disableZoomInOut();
@@ -267,3 +273,65 @@ function showPasswordDialog(filePath, type) {
     }, 250);
   });
 }
+
+const showActivationDialog = () => {
+  const dialog = document.createElement("div");
+  dialog.className = "activate-dialog";
+  dialog.innerHTML = `
+      <div class="dialog-content">
+        <h2>Activate Pro</h2>
+        <p>Enter your key to unlock Pro features.</p>
+        <input type="text" id="activateKey" placeholder="Enter your activation key here" />
+
+        <div class="buttons">
+        <button id="activate-btn">Activate</button>
+        <button id="cancel-btn">Cancel</button>
+        </div>
+
+        <p id="get-key">Don’t have an activation key? <a href="#">Get one here</a></p>
+      </div>
+  `;
+
+  document.body.appendChild(dialog);
+
+  // Add CSS transitions for animations
+  setTimeout(() => {
+    dialog.style.opacity = "1";
+    dialog.style.transform = "scale(1)";
+  }, 50);
+
+  // Add event listeners
+  const cancelBtn = dialog.querySelector("#cancel-btn");
+  const activateBtn = dialog.querySelector("#activate-btn");
+  const activateInput = dialog.querySelector("#activateKey");
+
+  cancelBtn.addEventListener("click", () => {
+    dialog.style.opacity = "0";
+    dialog.style.transform = "scale(0)";
+    setTimeout(() => {
+      dialog.remove();
+    }, 200);
+  });
+
+  activateBtn.addEventListener("click", () => {
+    const activateKey = activateInput.value;
+
+    if (!activateKey) {
+      notyf.error("Please Enter Your Activation Key!");
+      return;
+    }
+
+    if (activateKey.length !== 60) {
+      notyf.error("Activation Key must be 60 characters long!");
+      return;
+    }
+
+    window.electronAPI.sendMessage("activate-key", activateKey);
+
+    dialog.style.opacity = "0";
+    dialog.style.transform = "scale(0)";
+    setTimeout(() => {
+      dialog.remove();
+    }, 200);
+  });
+};
