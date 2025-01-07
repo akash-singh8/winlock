@@ -4,6 +4,7 @@ const path = require("node:path");
 const fs = require("node:fs");
 const archiver = require("archiver");
 const crypto = require("crypto");
+const settings = require("./settings");
 
 class EncryptionController {
   constructor() {
@@ -122,7 +123,7 @@ class EncryptionController {
   }
 
   // Decrypt the folder at the given path
-  async decryptFolder(folderPath, password) {
+  async decryptFolder(folderPath) {
     try {
       const encryptedPath = path.join(
         app.getPath("userData"),
@@ -138,6 +139,9 @@ class EncryptionController {
       const encrypted = encryptedData.slice(32 + this.ivLength);
 
       // Generate key from password
+      const data = fs.readFileSync(this.protectedFilesPath, "utf8");
+      const protectedFiles = JSON.parse(data);
+      const password = protectedFiles[folderPath]["password"];
       const key = this.generateKey(password, salt);
 
       // Create decipher
@@ -177,7 +181,10 @@ class EncryptionController {
     const data = fs.readFileSync(this.protectedFilesPath, "utf8");
     const protectedFiles = JSON.parse(data);
 
-    return password === protectedFiles[filePath]["password"];
+    return settings.verifyPassword(
+      password,
+      protectedFiles[filePath]["password"]
+    );
   }
 }
 

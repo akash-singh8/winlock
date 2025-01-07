@@ -1,6 +1,7 @@
 const { app } = require("electron");
 const path = require("node:path");
 const fs = require("node:fs");
+const bcrypt = require("bcrypt");
 
 class Settings {
   constructor() {
@@ -21,6 +22,17 @@ class Settings {
     }
   }
 
+  // Hash a password before storing
+  hashPassword(password) {
+    const saltRounds = 10;
+    return bcrypt.hashSync(password, saltRounds);
+  }
+
+  // Verify password against hash
+  verifyPassword(password, hashedPassword) {
+    return bcrypt.compareSync(password, hashedPassword);
+  }
+
   isSetupComplete() {
     const data = fs.readFileSync(this.settingsFilePath, "utf-8");
     const settings = JSON.parse(data);
@@ -31,6 +43,12 @@ class Settings {
     const data = fs.readFileSync(this.settingsFilePath, "utf-8");
     const settings = JSON.parse(data);
     return settings.isEnabled;
+  }
+
+  isCommonPasswordEnabled() {
+    const data = fs.readFileSync(this.settingsFilePath, "utf-8");
+    const settings = JSON.parse(data);
+    return !!settings.commonPassword;
   }
 
   getCommonPassword() {
@@ -59,7 +77,7 @@ class Settings {
     const data = fs.readFileSync(this.settingsFilePath, "utf-8");
     const settings = JSON.parse(data);
 
-    settings.commonPassword = password;
+    settings.commonPassword = password ? this.hashPassword(password) : null;
     fs.writeFileSync(this.settingsFilePath, JSON.stringify(settings, null, 2));
   }
 }

@@ -62,7 +62,7 @@ app.on("ready", () => {
 
     // Send the protection and common password state to the client
     const isProtectionEnabled = settings.isEnabled();
-    const isCommonPasswordSet = !!settings.getCommonPassword();
+    const isCommonPasswordSet = settings.isCommonPasswordEnabled();
     mainWindow.webContents.send("enable-state", isProtectionEnabled);
     mainWindow.webContents.send("common-password-state", isCommonPasswordSet);
 
@@ -72,9 +72,13 @@ app.on("ready", () => {
   // Handle encrypt-file event from renderer
   ipcMain.on("encrypt-file", async (event, data) => {
     const { path: fP, password } = data;
-    const isSaved = protectionController.saveProtectedFileInfo(fP, password);
+    const hashedPassword = settings.hashPassword(password);
+    const isSaved = protectionController.saveProtectedFileInfo(
+      fP,
+      hashedPassword
+    );
     const isEncrypted =
-      isSaved && (await encryptionController.encryptFolder(fP, password));
+      isSaved && (await encryptionController.encryptFolder(fP, hashedPassword));
 
     if (isSaved && !isEncrypted)
       protectionController.removeProtectedFileInfo(fP, true);
@@ -95,8 +99,7 @@ app.on("ready", () => {
       password
     );
     const isDecrypted =
-      isCorrectPassword &&
-      (await encryptionController.decryptFolder(fP, password));
+      isCorrectPassword && (await encryptionController.decryptFolder(fP));
     const isRemoved =
       isCorrectPassword &&
       isDecrypted &&
@@ -131,17 +134,15 @@ app.on("ready", () => {
 
   // Handle Common Password
   ipcMain.on("set-common-password", (event, password) => {
-    const isCommonPasswordSet = !!settings.getCommonPassword();
+    const isCommonPasswordSet = settings.isCommonPasswordEnabled();
     if (isCommonPasswordSet) return;
     settings.setCommonPassword(password);
   });
 
   ipcMain.on("match-common-password", (event, password) => {
     const commonPassword = settings.getCommonPassword();
-    if (password === commonPassword) settings.setCommonPassword("");
-    mainWindow.webContents.send(
-      "match-common-password",
-      password === commonPassword
-    );
+    const isCorrectPassword = settings.verifyPassword(password, commonPassword);
+    if (isCorrectPassword) settings.setCommonPassword(null);
+    mainWindow.webContents.send("match-common-password", isCorrectPassword);
   });
 });
