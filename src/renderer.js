@@ -186,7 +186,7 @@ function showPasswordDialog(filePath, type) {
               : "Set a common password:"
             : filePath
         }</p>
-        <input type="password" id="password" placeholder="Enter password" />
+        <input type="password" id="password" placeholder="Enter password" autofocus/>
         ${
           type === "decrypt" || filePath === true
             ? ""
@@ -288,7 +288,7 @@ const showActivationDialog = () => {
       <div class="dialog-content">
         <h2>Activate Pro</h2>
         <p>Enter your key to unlock Pro features.</p>
-        <input type="text" id="activateKey" placeholder="Enter your activation key here" />
+        <input type="text" id="activateKey" placeholder="Enter your activation key here" autofocus/>
 
         <div class="buttons">
         <button id="activate-btn">Activate</button>
