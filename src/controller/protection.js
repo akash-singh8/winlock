@@ -28,7 +28,16 @@ class ProtectionController {
     }
 
     if (mode === "decrypt") this.handleDecryptRequest(fileArg);
-    else this.handleProtectRequest(fileArg);
+    else {
+      const protectedFiles = fs.readFileSync(this.protectedFilesPath, "utf8");
+      const parsedData = JSON.parse(protectedFiles);
+      const foldersProtected = Object.keys(parsedData).length;
+      if (foldersProtected === 3) {
+        this.mainWindow.webContents.send("limit-exceeded", true);
+        return;
+      }
+      this.handleProtectRequest(fileArg);
+    }
   }
 
   // Handle the protect request

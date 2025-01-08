@@ -92,6 +92,13 @@ const handleIncomingEvents = () => {
     );
   });
 
+  window.electronAPI.onEvent("limit-exceeded", (event, data) => {
+    notyf.error({
+      message: "Limit reached: Protect up to 3 folders. Upgrade to add more.",
+      duration: 5000,
+    });
+  });
+
   window.electronAPI.sendMessage("ready", true);
 };
 
