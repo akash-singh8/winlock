@@ -80,6 +80,16 @@ class Settings {
     settings.commonPassword = password ? this.hashPassword(password) : null;
     fs.writeFileSync(this.settingsFilePath, JSON.stringify(settings, null, 2));
   }
+
+  enableProFeature(activationKey, plan) {
+    const data = fs.readFileSync(this.settingsFilePath, "utf-8");
+    const settings = JSON.parse(data);
+    settings.plan = plan;
+    settings.activationKey = activationKey;
+    settings.lastVerified = new Date().toDateString();
+
+    fs.writeFileSync(this.settingsFilePath, JSON.stringify(settings, null, 2));
+  }
 }
 
 module.exports = new Settings();

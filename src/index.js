@@ -151,4 +151,10 @@ app.on("ready", () => {
     if (isCorrectPassword) settings.setCommonPassword(null);
     mainWindow.webContents.send("match-common-password", isCorrectPassword);
   });
+
+  // Handle pro feature activation
+  ipcMain.on("activate-key", async (event, data) => {
+    const { plan, activationKey } = data;
+    settings.enableProFeature(activationKey, plan);
+  });
 });

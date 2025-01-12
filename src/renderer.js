@@ -319,6 +319,7 @@ const showActivationDialog = () => {
   const activateInput = dialog.querySelector("#activateKey");
   const premiumBtn = dialog.querySelector("#premium-btn");
   const professionalBtn = dialog.querySelector("#professional-btn");
+  let plan = "premium";
 
   cancelBtn.addEventListener("click", () => {
     dialog.style.opacity = "0";
@@ -328,20 +329,70 @@ const showActivationDialog = () => {
     }, 200);
   });
 
-  activateBtn.addEventListener("click", () => {
-    const activateKey = activateInput.value;
+  activateBtn.addEventListener("click", async () => {
+    const activationKey = activateInput.value;
 
-    if (!activateKey) {
+    if (!activationKey) {
       notyf.error("Please Enter Your Activation Key!");
       return;
     }
 
-    if (activateKey.length < 60) {
+    if (activationKey.length < 60) {
       notyf.error("Activation Key must be at least 60 characters long!");
       return;
     }
 
-    window.electronAPI.sendMessage("activate-key", activateKey);
+    // TODO: show a loader or message that we are verifying
+    try {
+      const isValidKey = await fetch(
+        "https://winlock.vercel.app/api/activate-key/verify",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ activationKey, plan }),
+        }
+      );
+      if (!isValidKey.ok) {
+        throw new Error(`Request failed with status ${isValidKey.status}`);
+      }
+
+      const { isValid } = await isValidKey.json();
+
+      if (isValid) {
+        const deviceID = random32CharHex();
+        const addDevice = await fetch(
+          "https://winlock.vercel.app/api/pro-device",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              action: "add",
+              activationKey,
+              deviceID,
+            }),
+          }
+        );
+
+        if (!addDevice.ok) {
+          notyf.error("Unable to register current device with activation key!");
+          return;
+        }
+
+        window.electronAPI.sendMessage("activate-key", { plan, activationKey });
+      } else {
+        notyf.error("Invalid activation key! Please try again.");
+        activateInput.value = "";
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+      notyf.error("Unable to verify your activation key!");
+      return;
+    }
 
     dialog.style.opacity = "0";
     dialog.style.transform = "scale(0)";
@@ -351,14 +402,24 @@ const showActivationDialog = () => {
   });
 
   premiumBtn.addEventListener("click", () => {
+    plan = "premium";
     premiumBtn.style.backgroundColor = "#fff";
     professionalBtn.style.backgroundColor = "#f0f2f5";
     activateInput.placeholder = "Enter your premium activation key here";
   });
 
   professionalBtn.addEventListener("click", () => {
+    plan = "professional";
     professionalBtn.style.backgroundColor = "#fff";
     premiumBtn.style.backgroundColor = "#f0f2f5";
     activateInput.placeholder = "Enter your professional activation key here";
   });
+};
+
+const random32CharHex = () => {
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  return Array.from(array)
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
 };
