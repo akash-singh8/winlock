@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, shell } = require("electron");
 const path = require("node:path");
 const fs = require("node:fs");
 
@@ -43,6 +43,12 @@ const createWindow = () => {
   protectionController.initialize(mainWindow);
   encryptionController.initialize(mainWindow);
   contextMenuController.initialize(mainWindow);
+
+  // Intercept new window requests and open in external browser
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: "deny" }; // Prevent Electron from opening a new window
+  });
 
   return mainWindow;
 };
