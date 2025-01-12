@@ -288,14 +288,20 @@ const showActivationDialog = () => {
       <div class="dialog-content">
         <h2>Activate Pro</h2>
         <p>Enter your key to unlock Pro features.</p>
-        <input type="text" id="activateKey" placeholder="Enter your activation key here" autofocus/>
+
+        <div class="toggle-wrapper">
+            <div id="premium-btn">Premium</div>
+            <div id="professional-btn">Professional</div>
+        </div>
+        
+        <input type="text" id="activateKey" placeholder="Enter your premium activation key here" autofocus/>
 
         <div class="buttons">
         <button id="activate-btn">Activate</button>
         <button id="cancel-btn">Cancel</button>
         </div>
 
-        <p id="get-key">Don’t have an activation key? <a href="#">Get one here</a></p>
+        <p id="get-key">Don’t have an activation key? <a href="https://winlock.vercel.app/pricing" target="_blank">Get one here</a></p>
       </div>
   `;
 
@@ -311,6 +317,8 @@ const showActivationDialog = () => {
   const cancelBtn = dialog.querySelector("#cancel-btn");
   const activateBtn = dialog.querySelector("#activate-btn");
   const activateInput = dialog.querySelector("#activateKey");
+  const premiumBtn = dialog.querySelector("#premium-btn");
+  const professionalBtn = dialog.querySelector("#professional-btn");
 
   cancelBtn.addEventListener("click", () => {
     dialog.style.opacity = "0";
@@ -328,8 +336,8 @@ const showActivationDialog = () => {
       return;
     }
 
-    if (activateKey.length !== 60) {
-      notyf.error("Activation Key must be 60 characters long!");
+    if (activateKey.length < 60) {
+      notyf.error("Activation Key must be at least 60 characters long!");
       return;
     }
 
@@ -340,5 +348,17 @@ const showActivationDialog = () => {
     setTimeout(() => {
       dialog.remove();
     }, 200);
+  });
+
+  premiumBtn.addEventListener("click", () => {
+    premiumBtn.style.backgroundColor = "#fff";
+    professionalBtn.style.backgroundColor = "#f0f2f5";
+    activateInput.placeholder = "Enter your premium activation key here";
+  });
+
+  professionalBtn.addEventListener("click", () => {
+    professionalBtn.style.backgroundColor = "#fff";
+    premiumBtn.style.backgroundColor = "#f0f2f5";
+    activateInput.placeholder = "Enter your professional activation key here";
   });
 };

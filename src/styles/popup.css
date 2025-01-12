@@ -92,7 +92,6 @@
   font-weight: 500;
   border-bottom: 1px solid var(--lightGray);
   padding: 6px 12px;
-  margin-top: 0.75rem;
 }
 
 .activate-dialog .buttons {
@@ -104,7 +103,7 @@
 
 .activate-dialog #cancel-btn {
   flex: 1;
-  background-color: var(--lightGray) !important;
+  background-color: #f0f2f5 !important;
 }
 
 .activate-dialog #cancel-btn:hover {
@@ -117,7 +116,7 @@
 
 #get-key {
   text-align: center;
-  margin-top: 1.5rem;
+  margin-top: 1.25rem;
 }
 
 #get-key a {
@@ -127,4 +126,29 @@
 
 #get-key a:hover {
   text-decoration: underline;
+}
+
+.toggle-wrapper {
+  width: 100%;
+  background-color: #f0f2f5;
+  border-radius: var(--borderRadius);
+  display: flex;
+  padding: 4px;
+  margin: 1.25rem 0 0.75rem;
+}
+
+#premium-btn {
+  background-color: #fff;
+}
+
+#premium-btn,
+#professional-btn {
+  border-radius: var(--borderRadius);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 28px;
+  flex: 1;
+  text-align: center;
+  transition: all 0.2s ease-out;
 }
