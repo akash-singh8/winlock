@@ -158,5 +158,6 @@ app.on("ready", () => {
   ipcMain.on("activate-key", async (event, data) => {
     const { plan, activationKey } = data;
     settings.enableProFeature(activationKey, plan);
+    mainWindow.webContents.send("account-type", settings.isProEnabled());
   });
 });
