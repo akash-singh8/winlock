@@ -358,8 +358,8 @@ const showActivationDialog = () => {
       return;
     }
 
-    // TODO: show a loader or message that we are verifying
     try {
+      showLoader(true);
       const isValidKey = await fetch(
         "https://winlock.vercel.app/api/activate-key/verify",
         {
@@ -399,6 +399,7 @@ const showActivationDialog = () => {
         }
 
         window.electronAPI.sendMessage("activate-key", { plan, activationKey });
+        notyf.success("Activated Pro Features.");
       } else {
         notyf.error("Invalid activation key! Please try again.");
         activateInput.value = "";
@@ -408,6 +409,8 @@ const showActivationDialog = () => {
       console.error(e);
       notyf.error("Unable to verify your activation key!");
       return;
+    } finally {
+      showLoader(false);
     }
 
     dialog.style.opacity = "0";
@@ -438,4 +441,22 @@ const random32CharHex = () => {
   return Array.from(array)
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
+};
+
+const showLoader = (enable) => {
+  const loader = document.getElementById("loader");
+
+  if (enable) {
+    loader.style.display = "flex";
+    setTimeout(() => {
+      loader.style.opacity = "1";
+      loader.style.transform = "scale(1)";
+    }, 10);
+  } else {
+    loader.style.opacity = "0";
+    loader.style.transform = "scale(0)";
+    setTimeout(() => {
+      loader.style.display = "none";
+    }, 250);
+  }
 };

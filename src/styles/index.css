@@ -92,7 +92,31 @@ button:active {
 }
 
 .content {
+  position: relative;
   padding: 16px;
+}
+
+#loader {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(2px);
+  padding-bottom: 4rem;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  z-index: 15;
+  display: none;
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.25s ease-out;
+}
+
+#loader img {
+  width: 148px;
 }
 
 .lock-settings {
