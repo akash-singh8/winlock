@@ -29,7 +29,8 @@ class ProtectionController {
 
     if (mode === "decrypt") this.handleDecryptRequest(fileArg);
     else {
-      if (fs.existsSync(this.protectedFilesPath)) {
+      const isPro = settings.isProEnabled();
+      if (!isPro && fs.existsSync(this.protectedFilesPath)) {
         const protectedFiles = fs.readFileSync(this.protectedFilesPath, "utf8");
         const parsedData = JSON.parse(protectedFiles);
         const foldersProtected = Object.keys(parsedData).length;

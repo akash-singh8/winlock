@@ -90,6 +90,51 @@ class Settings {
 
     fs.writeFileSync(this.settingsFilePath, JSON.stringify(settings, null, 2));
   }
+
+  async validatePro() {
+    const data = fs.readFileSync(this.settingsFilePath, "utf-8");
+    const settings = JSON.parse(data);
+
+    if (!settings.plan) return;
+
+    const currDate = new Date().toDateString();
+    if (currDate === settings.lastVerified) return;
+
+    const isValidKey = await fetch(
+      "https://winlock.vercel.app/api/activate-key/verify",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          activationKey: settings.activationKey,
+          plan: settings.plan,
+        }),
+      }
+    );
+
+    if (!isValidKey.ok) return;
+
+    const { isValid } = await isValidKey.json();
+
+    if (isValid) {
+      settings.lastVerified = currDate;
+    } else {
+      delete settings.plan;
+      delete settings.activationKey;
+      delete settings.lastVerified;
+    }
+
+    fs.writeFileSync(this.settingsFilePath, JSON.stringify(settings, null, 2));
+  }
+
+  isProEnabled() {
+    const data = fs.readFileSync(this.settingsFilePath, "utf-8");
+    const settings = JSON.parse(data);
+
+    return settings.plan;
+  }
 }
 
 module.exports = new Settings();

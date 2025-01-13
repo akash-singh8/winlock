@@ -226,7 +226,7 @@ button:active {
   align-items: center;
   flex-direction: column;
   justify-content: space-between;
-  height: 71px;
+  gap: 0.75rem;
 }
 
 .upgrade > p {

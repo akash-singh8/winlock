@@ -156,6 +156,22 @@ const handleActivation = () => {
   proButton.addEventListener("click", () => showActivationDialog());
 };
 
+const handleAccountType = () => {
+  window.electronAPI.onEvent("account-type", (event, plan) => {
+    if (!plan) return;
+
+    const history = document.querySelector(".history");
+    const div = document.querySelector(".upgrade > div");
+    const p = document.querySelector(".upgrade > p");
+    p.innerHTML =
+      (plan === "premium" ? "Premium subscription" : "Professional") +
+      " : Lock unlimited folders";
+    div.style.display = "none";
+    history.style.height = "376px";
+  });
+};
+
+handleAccountType();
 handleActivation();
 handleCommonPassword();
 handleEnableState();

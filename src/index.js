@@ -71,8 +71,10 @@ app.on("ready", () => {
     const isCommonPasswordSet = settings.isCommonPasswordEnabled();
     mainWindow.webContents.send("enable-state", isProtectionEnabled);
     mainWindow.webContents.send("common-password-state", isCommonPasswordSet);
+    mainWindow.webContents.send("account-type", settings.isProEnabled());
 
     sendProtectedFilesList(mainWindow);
+    settings.validatePro();
   });
 
   // Handle encrypt-file event from renderer
