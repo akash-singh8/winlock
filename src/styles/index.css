@@ -253,9 +253,23 @@ button:active {
   gap: 0.75rem;
 }
 
+.upgrade_pro {
+  border-radius: var(--borderRadius);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  margin-bottom: -16px;
+  padding: 12px 0;
+  background-color: var(--darkBlue);
+}
+
 .upgrade > p {
   color: var(--lightBlue);
   font-size: 14px;
+}
+
+.upgrade_pro > p {
+  color: var(--background);
+  font-weight: 500;
 }
 
 .upgrade div {

@@ -161,13 +161,15 @@ const handleAccountType = () => {
     if (!plan) return;
 
     const history = document.querySelector(".history");
+    const upgrade = document.querySelector(".upgrade");
     const div = document.querySelector(".upgrade > div");
     const p = document.querySelector(".upgrade > p");
+    upgrade.classList.add("upgrade_pro");
     p.innerHTML =
-      (plan === "premium" ? "Premium subscription" : "Professional") +
+      (plan === "premium" ? "Premium plan" : "Professional") +
       " : Lock unlimited folders";
     div.style.display = "none";
-    history.style.height = "376px";
+    history.style.height = "368px";
   });
 };
 
