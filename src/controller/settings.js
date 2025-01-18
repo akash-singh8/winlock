@@ -100,19 +100,16 @@ class Settings {
     const currDate = new Date().toDateString();
     if (currDate === settings.lastVerified) return;
 
-    const isValidKey = await fetch(
-      "https://winlock.vercel.app/api/activate-key/verify",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          activationKey: settings.activationKey,
-          plan: settings.plan,
-        }),
-      }
-    );
+    const isValidKey = await fetch("https://winlock.pro/api/verify-key", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        activationKey: settings.activationKey,
+        plan: settings.plan,
+      }),
+    });
 
     if (!isValidKey.ok) return;
 

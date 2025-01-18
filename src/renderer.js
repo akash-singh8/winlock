@@ -319,7 +319,7 @@ const showActivationDialog = () => {
         <button id="cancel-btn">Cancel</button>
         </div>
 
-        <p id="get-key">Don’t have an activation key? <a href="https://winlock.vercel.app/pricing" target="_blank">Get one here</a></p>
+        <p id="get-key">Don’t have an activation key? <a href="https://winlock.pro/pricing" target="_blank">Get one here</a></p>
       </div>
   `;
 
@@ -362,16 +362,13 @@ const showActivationDialog = () => {
 
     try {
       showLoader(true);
-      const isValidKey = await fetch(
-        "https://winlock.vercel.app/api/activate-key/verify",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ activationKey, plan }),
-        }
-      );
+      const isValidKey = await fetch("https://winlock.pro/api/verify-key", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ activationKey, plan }),
+      });
       if (!isValidKey.ok) {
         throw new Error(`Request failed with status ${isValidKey.status}`);
       }
@@ -380,20 +377,17 @@ const showActivationDialog = () => {
 
       if (isValid) {
         const deviceID = random32CharHex();
-        const addDevice = await fetch(
-          "https://winlock.vercel.app/api/pro-device",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              action: "add",
-              activationKey,
-              deviceID,
-            }),
-          }
-        );
+        const addDevice = await fetch("https://winlock.pro/api/pro-device", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action: "add",
+            activationKey,
+            deviceID,
+          }),
+        });
 
         if (!addDevice.ok) {
           notyf.error("Unable to register current device with activation key!");
