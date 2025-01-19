@@ -376,22 +376,29 @@ const showActivationDialog = () => {
       const { isValid } = await isValidKey.json();
 
       if (isValid) {
-        const deviceID = random32CharHex();
-        const addDevice = await fetch("https://winlock.pro/api/pro-device", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            action: "add",
-            activationKey,
-            deviceID,
-          }),
-        });
+        const newDeviceID = window.electronAPI.sendSync("get-device-id");
+        if (newDeviceID) {
+          const addDevice = await fetch("https://winlock.pro/api/pro-device", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              action: "add",
+              activationKey,
+              deviceID: newDeviceID,
+            }),
+          });
 
-        if (!addDevice.ok) {
-          notyf.error("Unable to register current device with activation key!");
-          return;
+          if (!addDevice.ok) {
+            const errorResponse = await addDevice.json().catch(() => null);
+            notyf.error(
+              errorResponse?.message ||
+                "Unable to register current device with activation key!"
+            );
+            window.electronAPI.sendSync("remove-device-id");
+            return;
+          }
         }
 
         window.electronAPI.sendMessage("activate-key", { plan, activationKey });
@@ -429,14 +436,6 @@ const showActivationDialog = () => {
     premiumBtn.style.backgroundColor = "#f0f2f5";
     activateInput.placeholder = "Enter your professional activation key here";
   });
-};
-
-const random32CharHex = () => {
-  const array = new Uint8Array(16);
-  crypto.getRandomValues(array);
-  return Array.from(array)
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
 };
 
 const showLoader = (enable) => {

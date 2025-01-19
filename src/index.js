@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, shell } = require("electron");
 const path = require("node:path");
 const fs = require("node:fs");
+const crypto = require("node:crypto");
 
 const protectionController = require("./controller/protection");
 const encryptionController = require("./controller/encryption");
@@ -159,5 +160,29 @@ app.on("ready", () => {
     const { plan, activationKey } = data;
     settings.enableProFeature(activationKey, plan);
     mainWindow.webContents.send("account-type", settings.isProEnabled());
+  });
+
+  // handle device id
+  ipcMain.on("get-device-id", (event) => {
+    const deviceFilePath = path.join(app.getPath("userData"), "device.txt");
+
+    if (fs.existsSync(deviceFilePath)) {
+      event.returnValue = "";
+      return;
+    }
+
+    const array = crypto.randomBytes(16);
+    const newDeviceID = Array.from(array)
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
+    fs.writeFileSync(deviceFilePath, newDeviceID);
+
+    event.returnValue = newDeviceID;
+  });
+
+  ipcMain.on("remove-device-id", (event) => {
+    const deviceFilePath = path.join(app.getPath("userData"), "device.txt");
+    fs.unlinkSync(deviceFilePath);
+    event.returnValue = "";
   });
 });
