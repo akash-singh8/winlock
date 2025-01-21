@@ -11,6 +11,14 @@ Secure your folders with passwords using **in-place encryption**—no file movin
 - **Offline Functionality**: No internet connection required for locking or unlocking folders.
 - **Advanced Security**: Robust encryption ensures only you can access your data.
 
+## Screenshots
+
+<img width="1080" alt="Home" src="https://github.com/user-attachments/assets/4cb833bc-b257-4a69-9ddc-ca3ef4afcc87" />
+<img width="1080" alt="Password Prompt" src="https://github.com/user-attachments/assets/53603035-cfca-4ac1-8877-1a56c0946e5b" />
+<img width="1080" alt="Locked Folders" src="https://github.com/user-attachments/assets/6b1179a1-1faa-48de-b0df-24c73bf2b636" />
+<img width="1080" alt="Unlocking" src="https://github.com/user-attachments/assets/b7e166cd-b9d7-4e04-bb32-2fe50a064724" />
+
+
 ## Installation
 1. Download the Winlock installer from the [official website](https://winlock.pro).
 2. Run the downloaded file `WinlockSetup.exe`.
