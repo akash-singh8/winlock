@@ -1,4 +1,5 @@
 const { app } = require("electron");
+const { exec } = require("child_process");
 const ws = require("windows-shortcuts");
 const path = require("node:path");
 const fs = require("node:fs");
@@ -67,6 +68,21 @@ class EncryptionController {
     );
   }
 
+  // Function to refresh Explorer for a given folder.
+  refreshExplorer(folderPath) {
+    const parentFolderPath = path.dirname(folderPath);
+    const vbsFilePath = path.join(__dirname, "../", "refreshExplorer.vbs");
+
+    const command = `cscript //nologo "${vbsFilePath}" "${parentFolderPath}"`;
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error("Error refreshing Explorer:", error);
+        return;
+      }
+      console.log("Explorer refresh command executed successfully.");
+    });
+  }
+
   async encryptFolder(folderPath, password) {
     try {
       // Generate salt and IV
@@ -108,6 +124,7 @@ class EncryptionController {
             // Delete the original folder and zip file
             fs.unlinkSync(zipPath);
             fs.rmSync(folderPath, { recursive: true, force: true });
+            this.refreshExplorer(folderPath);
 
             resolve(true);
           })
