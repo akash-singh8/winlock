@@ -23,6 +23,23 @@ if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
+// Request the single instance lock.
+const isFirstInstance = app.requestSingleInstanceLock();
+if (!isFirstInstance) {
+  return app.quit();
+}
+
+let mainWindow;
+
+app.on("second-instance", (event, cliArgs, workingDirectory) => {
+  // Bring the existing main window to focus.
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
+    protectionController.handleCommandLineArgs(cliArgs);
+  }
+});
+
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -57,7 +74,7 @@ const createWindow = () => {
 // This method will be called when Electron has finished initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
-  const mainWindow = createWindow();
+  mainWindow = createWindow();
 
   ipcMain.on("ready", () => {
     if (!settings.isSetupComplete()) {

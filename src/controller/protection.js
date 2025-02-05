@@ -19,9 +19,9 @@ class ProtectionController {
   }
 
   // Handle command line arguments when app is launched from context menu
-  handleCommandLineArgs() {
-    const fileArg = process.argv[1];
-    const mode = process.argv[2];
+  handleCommandLineArgs(cliArgs) {
+    const fileArg = cliArgs ? cliArgs[2] : process.argv[1];
+    const mode = cliArgs ? cliArgs[3] : process.argv[2];
 
     if (!fileArg || fileArg.includes("--squirrel")) {
       return;
