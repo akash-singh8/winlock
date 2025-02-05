@@ -1,40 +1,28 @@
-' refreshExplorer.vbs
 Set WshShell = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
+Set objShell = CreateObject("Shell.Application")
 
-' Check if a folder path argument is provided.
-If WScript.Arguments.Count > 0 Then
-    folderPath = WScript.Arguments(0)
-    
-    ' Get the Desktop folder path.
-    desktopFolder = WshShell.SpecialFolders("Desktop")
-    
-    ' Compare the provided folderPath with the Desktop folder.
-    If LCase(folderPath) = LCase(desktopFolder) Then
-        ' If folderPath is the Desktop, activate the desktop.
-        WshShell.AppActivate "Program Manager"
-    Else
-        ' For any other folder, get its name.
-        Set folderObj = fso.GetFolder(folderPath)
-        folderName = folderObj.Name
-        
-        ' Attempt to activate the File Explorer window with the folder name.
-        On Error Resume Next
-        WshShell.AppActivate folderName
-        If Err.Number <> 0 Then
-            ' If no window is found with the folder name, try activating a generic "File Explorer" window.
-            Err.Clear
-            WshShell.AppActivate "File Explorer"
+' Get the folder path from the argument passed to the script.
+folderPath = WScript.Arguments(0)
+
+' Loop through open Explorer windows.
+For Each win In objShell.Windows
+    On Error Resume Next
+    ' Check that the window is an Explorer instance.
+    If InStr(1, LCase(win.FullName), "explorer.exe", vbTextCompare) > 0 Then
+        ' Compare the window's folder path with the provided folderPath.
+        If LCase(win.Document.Folder.Self.Path) = LCase(folderPath) Then
+            ' Call the window's Refresh method.
+            win.Refresh
+            Exit For
         End If
-        On Error GoTo 0
     End If
-Else
-    ' If no folder path is provided, default to refreshing the desktop.
+Next
+
+desktopPath = WshShell.SpecialFolders("Desktop")
+' If the given folder path is the Desktop, refresh the Desktop as well
+If LCase(folderPath) = LCase(desktopPath) Then
     WshShell.AppActivate "Program Manager"
+    WScript.Sleep 500
+    WshShell.SendKeys "{F5}"
 End If
-
-' Wait briefly to ensure the target window is focused.
-WScript.Sleep 500
-
-' Send the F5 keystroke to refresh the window.
-WshShell.SendKeys "{F5}"
