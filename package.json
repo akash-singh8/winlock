@@ -1,7 +1,7 @@
 {
   "name": "winlock",
   "productName": "Winlock",
-  "version": "1.0.0",
+  "version": "1.1.2",
   "description": "Lock down your files with one-click password protection.",
   "main": "src/index.js",
   "scripts": {
