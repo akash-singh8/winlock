@@ -2,7 +2,7 @@
   "name": "winlock",
   "productName": "Winlock",
   "version": "1.1.2",
-  "description": "Lock down your files with one-click password protection.",
+  "description": "Secure your folders with passwords using in-place encryption—no file moving needed.",
   "main": "src/index.js",
   "scripts": {
     "start": "electron-forge start",
@@ -40,8 +40,8 @@
     }
   },
   "keywords": [],
-  "author": "cleve",
-  "license": "MIT",
+  "author": "devakash.in",
+  "license": "CC BY-NC 4.0",
   "dependencies": {
     "archiver": "^7.0.1",
     "bcrypt": "^5.1.1",
